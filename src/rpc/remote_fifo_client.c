@@ -13,22 +13,22 @@ remote_fifo_1(char *host)
 	CLIENT *clnt;
 	enum clnt_stat retval_1;
 	int result_1;
-	management_rf  create_rf_1_arg;
+	management_rf  create_rf__1_arg;
 	enum clnt_stat retval_2;
 	int result_2;
-	management_rf  unlik_rf_1_arg;
+	management_rf  unlink_rf__1_arg;
 	enum clnt_stat retval_3;
 	int result_3;
-	management_rf  open_rf_1_arg;
+	management_rf  open_rf__1_arg;
 	enum clnt_stat retval_4;
 	int result_4;
-	management_rf  close_rf_1_arg;
+	data_rf  close_rf__1_arg;
 	enum clnt_stat retval_5;
 	int result_5;
-	data_rf  write_rf_1_arg;
+	data_rf  write_rf__1_arg;
 	enum clnt_stat retval_6;
 	int result_6;
-	data_rf  read_rf_1_arg;
+	data_rf  read_rf__1_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, REMOTE_FIFO, SERVER_API, "udp");
@@ -38,27 +38,27 @@ remote_fifo_1(char *host)
 	}
 #endif	/* DEBUG */
 
-	retval_1 = create_rf_1(&create_rf_1_arg, &result_1, clnt);
+	retval_1 = create_rf__1(&create_rf__1_arg, &result_1, clnt);
 	if (retval_1 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_2 = unlik_rf_1(&unlik_rf_1_arg, &result_2, clnt);
+	retval_2 = unlink_rf__1(&unlink_rf__1_arg, &result_2, clnt);
 	if (retval_2 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_3 = open_rf_1(&open_rf_1_arg, &result_3, clnt);
+	retval_3 = open_rf__1(&open_rf__1_arg, &result_3, clnt);
 	if (retval_3 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_4 = close_rf_1(&close_rf_1_arg, &result_4, clnt);
+	retval_4 = close_rf__1(&close_rf__1_arg, &result_4, clnt);
 	if (retval_4 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_5 = write_rf_1(&write_rf_1_arg, &result_5, clnt);
+	retval_5 = write_rf__1(&write_rf__1_arg, &result_5, clnt);
 	if (retval_5 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_6 = read_rf_1(&read_rf_1_arg, &result_6, clnt);
+	retval_6 = read_rf__1(&read_rf__1_arg, &result_6, clnt);
 	if (retval_6 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
@@ -74,22 +74,22 @@ remote_fifo_101(char *host)
 	CLIENT *clnt;
 	enum clnt_stat retval_1;
 	int result_1;
-	management_rf_res  create_rf_res_101_arg;
+	management_rf_res  create_rf_res__101_arg;
 	enum clnt_stat retval_2;
 	int result_2;
-	management_rf_res  unlik_rf_res_101_arg;
+	management_rf_res  unlink_rf_res__101_arg;
 	enum clnt_stat retval_3;
 	int result_3;
-	management_rf_res  open_rf_res_101_arg;
+	management_rf_res  open_rf_res__101_arg;
 	enum clnt_stat retval_4;
 	int result_4;
-	management_rf_res  close_rf_res_101_arg;
+	management_rf_res  close_rf_res__101_arg;
 	enum clnt_stat retval_5;
 	int result_5;
-	data_rf_res  write_rf_res_101_arg;
+	data_rf_res  write_rf_res__101_arg;
 	enum clnt_stat retval_6;
 	int result_6;
-	data_rf_res  read_rf_res_101_arg;
+	data_rf_res  read_rf_res__101_arg;
 
 #ifndef	DEBUG
 	clnt = clnt_create (host, REMOTE_FIFO, CLIENT_API, "udp");
@@ -99,27 +99,27 @@ remote_fifo_101(char *host)
 	}
 #endif	/* DEBUG */
 
-	retval_1 = create_rf_res_101(&create_rf_res_101_arg, &result_1, clnt);
+	retval_1 = create_rf_res__101(&create_rf_res__101_arg, &result_1, clnt);
 	if (retval_1 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_2 = unlik_rf_res_101(&unlik_rf_res_101_arg, &result_2, clnt);
+	retval_2 = unlink_rf_res__101(&unlink_rf_res__101_arg, &result_2, clnt);
 	if (retval_2 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_3 = open_rf_res_101(&open_rf_res_101_arg, &result_3, clnt);
+	retval_3 = open_rf_res__101(&open_rf_res__101_arg, &result_3, clnt);
 	if (retval_3 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_4 = close_rf_res_101(&close_rf_res_101_arg, &result_4, clnt);
+	retval_4 = close_rf_res__101(&close_rf_res__101_arg, &result_4, clnt);
 	if (retval_4 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_5 = write_rf_res_101(&write_rf_res_101_arg, &result_5, clnt);
+	retval_5 = write_rf_res__101(&write_rf_res__101_arg, &result_5, clnt);
 	if (retval_5 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}
-	retval_6 = read_rf_res_101(&read_rf_res_101_arg, &result_6, clnt);
+	retval_6 = read_rf_res__101(&read_rf_res__101_arg, &result_6, clnt);
 	if (retval_6 != RPC_SUCCESS) {
 		clnt_perror (clnt, "call failed");
 	}

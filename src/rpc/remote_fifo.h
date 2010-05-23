@@ -57,89 +57,89 @@ typedef struct data_rf_res data_rf_res;
 #define SERVER_API 1
 
 #if defined(__STDC__) || defined(__cplusplus)
-#define create_rf 1
-extern  enum clnt_stat create_rf_1(management_rf *, int *, CLIENT *);
-extern  bool_t create_rf_1_svc(management_rf *, int *, struct svc_req *);
-#define unlik_rf 2
-extern  enum clnt_stat unlik_rf_1(management_rf *, int *, CLIENT *);
-extern  bool_t unlik_rf_1_svc(management_rf *, int *, struct svc_req *);
-#define open_rf 101
-extern  enum clnt_stat open_rf_1(management_rf *, int *, CLIENT *);
-extern  bool_t open_rf_1_svc(management_rf *, int *, struct svc_req *);
-#define close_rf 102
-extern  enum clnt_stat close_rf_1(management_rf *, int *, CLIENT *);
-extern  bool_t close_rf_1_svc(management_rf *, int *, struct svc_req *);
-#define write_rf 103
-extern  enum clnt_stat write_rf_1(data_rf *, int *, CLIENT *);
-extern  bool_t write_rf_1_svc(data_rf *, int *, struct svc_req *);
-#define read_rf 104
-extern  enum clnt_stat read_rf_1(data_rf *, int *, CLIENT *);
-extern  bool_t read_rf_1_svc(data_rf *, int *, struct svc_req *);
+#define create_rf_ 1
+extern  enum clnt_stat create_rf__1(management_rf *, int *, CLIENT *);
+extern  bool_t create_rf__1_svc(management_rf *, int *, struct svc_req *);
+#define unlink_rf_ 2
+extern  enum clnt_stat unlink_rf__1(management_rf *, int *, CLIENT *);
+extern  bool_t unlink_rf__1_svc(management_rf *, int *, struct svc_req *);
+#define open_rf_ 101
+extern  enum clnt_stat open_rf__1(management_rf *, int *, CLIENT *);
+extern  bool_t open_rf__1_svc(management_rf *, int *, struct svc_req *);
+#define close_rf_ 102
+extern  enum clnt_stat close_rf__1(data_rf *, int *, CLIENT *);
+extern  bool_t close_rf__1_svc(data_rf *, int *, struct svc_req *);
+#define write_rf_ 103
+extern  enum clnt_stat write_rf__1(data_rf *, int *, CLIENT *);
+extern  bool_t write_rf__1_svc(data_rf *, int *, struct svc_req *);
+#define read_rf_ 104
+extern  enum clnt_stat read_rf__1(data_rf *, int *, CLIENT *);
+extern  bool_t read_rf__1_svc(data_rf *, int *, struct svc_req *);
 extern int remote_fifo_1_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
-#define create_rf 1
-extern  enum clnt_stat create_rf_1();
-extern  bool_t create_rf_1_svc();
-#define unlik_rf 2
-extern  enum clnt_stat unlik_rf_1();
-extern  bool_t unlik_rf_1_svc();
-#define open_rf 101
-extern  enum clnt_stat open_rf_1();
-extern  bool_t open_rf_1_svc();
-#define close_rf 102
-extern  enum clnt_stat close_rf_1();
-extern  bool_t close_rf_1_svc();
-#define write_rf 103
-extern  enum clnt_stat write_rf_1();
-extern  bool_t write_rf_1_svc();
-#define read_rf 104
-extern  enum clnt_stat read_rf_1();
-extern  bool_t read_rf_1_svc();
+#define create_rf_ 1
+extern  enum clnt_stat create_rf__1();
+extern  bool_t create_rf__1_svc();
+#define unlink_rf_ 2
+extern  enum clnt_stat unlink_rf__1();
+extern  bool_t unlink_rf__1_svc();
+#define open_rf_ 101
+extern  enum clnt_stat open_rf__1();
+extern  bool_t open_rf__1_svc();
+#define close_rf_ 102
+extern  enum clnt_stat close_rf__1();
+extern  bool_t close_rf__1_svc();
+#define write_rf_ 103
+extern  enum clnt_stat write_rf__1();
+extern  bool_t write_rf__1_svc();
+#define read_rf_ 104
+extern  enum clnt_stat read_rf__1();
+extern  bool_t read_rf__1_svc();
 extern int remote_fifo_1_freeresult ();
 #endif /* K&R C */
 #define CLIENT_API 101
 
 #if defined(__STDC__) || defined(__cplusplus)
-#define create_rf_res 1
-extern  enum clnt_stat create_rf_res_101(management_rf_res *, int *, CLIENT *);
-extern  bool_t create_rf_res_101_svc(management_rf_res *, int *, struct svc_req *);
-#define unlik_rf_res 2
-extern  enum clnt_stat unlik_rf_res_101(management_rf_res *, int *, CLIENT *);
-extern  bool_t unlik_rf_res_101_svc(management_rf_res *, int *, struct svc_req *);
-#define open_rf_res 101
-extern  enum clnt_stat open_rf_res_101(management_rf_res *, int *, CLIENT *);
-extern  bool_t open_rf_res_101_svc(management_rf_res *, int *, struct svc_req *);
-#define close_rf_res 102
-extern  enum clnt_stat close_rf_res_101(management_rf_res *, int *, CLIENT *);
-extern  bool_t close_rf_res_101_svc(management_rf_res *, int *, struct svc_req *);
-#define write_rf_res 103
-extern  enum clnt_stat write_rf_res_101(data_rf_res *, int *, CLIENT *);
-extern  bool_t write_rf_res_101_svc(data_rf_res *, int *, struct svc_req *);
-#define read_rf_res 104
-extern  enum clnt_stat read_rf_res_101(data_rf_res *, int *, CLIENT *);
-extern  bool_t read_rf_res_101_svc(data_rf_res *, int *, struct svc_req *);
+#define create_rf_res_ 1
+extern  enum clnt_stat create_rf_res__101(management_rf_res *, int *, CLIENT *);
+extern  bool_t create_rf_res__101_svc(management_rf_res *, int *, struct svc_req *);
+#define unlink_rf_res_ 2
+extern  enum clnt_stat unlink_rf_res__101(management_rf_res *, int *, CLIENT *);
+extern  bool_t unlink_rf_res__101_svc(management_rf_res *, int *, struct svc_req *);
+#define open_rf_res_ 101
+extern  enum clnt_stat open_rf_res__101(management_rf_res *, int *, CLIENT *);
+extern  bool_t open_rf_res__101_svc(management_rf_res *, int *, struct svc_req *);
+#define close_rf_res_ 102
+extern  enum clnt_stat close_rf_res__101(management_rf_res *, int *, CLIENT *);
+extern  bool_t close_rf_res__101_svc(management_rf_res *, int *, struct svc_req *);
+#define write_rf_res_ 103
+extern  enum clnt_stat write_rf_res__101(data_rf_res *, int *, CLIENT *);
+extern  bool_t write_rf_res__101_svc(data_rf_res *, int *, struct svc_req *);
+#define read_rf_res_ 104
+extern  enum clnt_stat read_rf_res__101(data_rf_res *, int *, CLIENT *);
+extern  bool_t read_rf_res__101_svc(data_rf_res *, int *, struct svc_req *);
 extern int remote_fifo_101_freeresult (SVCXPRT *, xdrproc_t, caddr_t);
 
 #else /* K&R C */
-#define create_rf_res 1
-extern  enum clnt_stat create_rf_res_101();
-extern  bool_t create_rf_res_101_svc();
-#define unlik_rf_res 2
-extern  enum clnt_stat unlik_rf_res_101();
-extern  bool_t unlik_rf_res_101_svc();
-#define open_rf_res 101
-extern  enum clnt_stat open_rf_res_101();
-extern  bool_t open_rf_res_101_svc();
-#define close_rf_res 102
-extern  enum clnt_stat close_rf_res_101();
-extern  bool_t close_rf_res_101_svc();
-#define write_rf_res 103
-extern  enum clnt_stat write_rf_res_101();
-extern  bool_t write_rf_res_101_svc();
-#define read_rf_res 104
-extern  enum clnt_stat read_rf_res_101();
-extern  bool_t read_rf_res_101_svc();
+#define create_rf_res_ 1
+extern  enum clnt_stat create_rf_res__101();
+extern  bool_t create_rf_res__101_svc();
+#define unlink_rf_res_ 2
+extern  enum clnt_stat unlink_rf_res__101();
+extern  bool_t unlink_rf_res__101_svc();
+#define open_rf_res_ 101
+extern  enum clnt_stat open_rf_res__101();
+extern  bool_t open_rf_res__101_svc();
+#define close_rf_res_ 102
+extern  enum clnt_stat close_rf_res__101();
+extern  bool_t close_rf_res__101_svc();
+#define write_rf_res_ 103
+extern  enum clnt_stat write_rf_res__101();
+extern  bool_t write_rf_res__101_svc();
+#define read_rf_res_ 104
+extern  enum clnt_stat read_rf_res__101();
+extern  bool_t read_rf_res__101_svc();
 extern int remote_fifo_101_freeresult ();
 #endif /* K&R C */
 

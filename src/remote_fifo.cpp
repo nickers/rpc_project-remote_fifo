@@ -8,6 +8,15 @@ CLIENT* __aquire_client(char* host)
 {
     CLIENT *c = NULL;
 
+	if (host==NULL)
+	{
+		host = __remote_fifo_host;
+	}
+	else if (__remote_fifo_host==NULL)
+	{
+		__remote_fifo_host = host;
+	}
+
     #ifndef	DEBUG
 	c = clnt_create (host, REMOTE_FIFO, SERVER_API, "udp");
 	if (c == NULL)
@@ -49,8 +58,8 @@ int __call_remote_man_func(char* name, rf_man_callback callback, void* data, cha
     }
 
     args.name = name;
-    args.callback = (quad_t*)callback;
-    args.data = (quad_t*)data;
+    args.callback = (quad_t)callback;
+    args.data = (quad_t)data;
 
     CLIENT *c = __aquire_client(host);
     int ret_val = func(&args, &result, c);
@@ -65,24 +74,24 @@ int __call_remote_man_func(char* name, rf_man_callback callback, void* data, cha
 
 int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data, clnt_stat (*func)(data_rf*, int*,CLIENT*))
 {
-    data_rf  args;
-    int result = 0;
+	data_rf  args;
+	int result = 0;
 
-    args.descriptor = handle;
-    args.callback = (quad_t*)callback;
-    args.data = (quad_t*)data;
-    args.buf.buf_len = size;
-    args.buf.buf_val = (char*)buffer;
+	args.descriptor = handle;
+	args.callback = (quad_t)callback;
+	args.data = (quad_t)data;
+	args.buf.buf_len = size;
+	args.buf.buf_val = (char*)buffer;
 
-    CLIENT *c = __aquire_client(NULL);
-    int ret_val = func(&args, &result, c);
+	CLIENT *c = __aquire_client(NULL);
+	int ret_val = func(&args, &result, c);
 	if (ret_val != RPC_SUCCESS)
 	{
 		clnt_perror (c, "call failed");
 	}
-    __release_client(c);
+	__release_client(c);
 
-    return result;
+	return result;
 }
 
 
@@ -115,17 +124,22 @@ int  open_rf(char* name, rf_man_callback callback,  void* data, char* host)
 
 int close_rf(int handle, rf_man_callback callback, void* data)
 {
+	char name[] = "--name-of-fifo--";
     __call_remote_rw_func(handle, NULL, 0, (rf_rw_callback)callback, data, close_rf__1);
-    callback(0, "--name-of-fifo--", data);
+    callback(0, name, data);
     return 0;
 }
 
 int  read_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data)
 {
-    return -1;
+    int code = __call_remote_rw_func(handle, buffer, size, (rf_rw_callback)callback, data, read_rf__1);
+    callback(handle,  code, buffer, size, data);
+    return 0;
 }
 
 int write_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data)
 {
-    return -1;
+	int code = __call_remote_rw_func(handle, buffer, size, (rf_rw_callback)callback, data, write_rf__1);
+    callback(handle,  code, buffer, size, data);
+    return 0;
 }

@@ -47,6 +47,7 @@ void read_callback_1(int rf, int code, void* buf, int len, void* data) {
 	printf("Readed %d bytes, should be %ld.\n", len, sizeof(int));
 	printf("  - message to read length: %d\n", *msg_length);
 	printf("Reading message...\n");
+	*msg_length = 10;
 	char* read_buf = new char[*msg_length];
 	read_rf(rf, read_buf, *msg_length, read_callback_2, data);
 	delete msg_length;
@@ -71,9 +72,13 @@ void unlink_callback(int code, char* name, void* data) {
 
 
 int main(int argc, const char* argv[]) {
-  std::cout << "Hello, World" << endl;
   char pass_string[] = "przekaz dalej";
   char fifo_name[] = "/test.fifo";
+  char host[] = "localhost";
+
+  printf("Remote FIFO - test program\n");
+
+  init_rf(host);
   create_rf(fifo_name, create_callback, pass_string);
 
   return 0;

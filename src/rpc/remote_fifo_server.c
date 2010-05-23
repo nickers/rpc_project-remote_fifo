@@ -5,81 +5,220 @@
  */
 
 #include "remote_fifo.h"
+#include <map>
+#include <semaphore.h>
+#include <string>
+#include "../data_queue.h"
 
-bool_t
-create_rf_1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
+
+class fifo_info {
+public:
+	std::string name;
+	data_queue	data;
+	sem_t		lock;
+	int 		use_count;
+
+	// TODO dodać 'set<int> handles'
+
+	fifo_info(std::string n)
+	{
+		name = n;
+		sem_init(&lock, 1, 1);
+		use_count = 0;
+	}
+
+	~fifo_info()
+	{
+		sem_destroy(&lock);
+	}
+};
+
+#define fifos_iter std::map<std::string, fifo_info*>::iterator
+#define handles_iter std::map<int, fifo_info*>::iterator
+std::map<std::string, fifo_info*> fifos;
+std::map<int, fifo_info*> handles;
+
+sem_t overal_sem;
+sem_t fifos_sem;
+sem_t handles_sem;
+int next_handle = 1;
+
+/**
+ *
+ */
+void server_rf_init()
 {
-	bool_t retval;
-
-	/*
-	 * insert server code here
-	 */
-
-	return retval;
+	sem_init(&overal_sem, 1, 1);
+	sem_init(&fifos_sem, 1, 1);
+	sem_init(&handles_sem, 1, 1);
 }
 
-bool_t
-unlik_rf_1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
+/**
+ *
+ */
+bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	//sem_wait(&overal_sem);
+	sem_wait(&fifos_sem);
 
-	/*
-	 * insert server code here
-	 */
+	std::string name(argp->name);
+	fifos_iter iter = fifos.find(name);
+	if (iter!=fifos.end()) {
+		sem_post(&fifos_sem);
+		*result = -1;
+		return true;
+	}
 
-	return retval;
+	*result = 0;
+	fifos[name] = new fifo_info(name);
+
+	// ta sama kolejnosc - mikro-optymalizacja... 
+	//sem_post(&overal_sem);
+	sem_post(&fifos_sem);
+
+	printf("create: %s : %d\n", name.c_str(), *result);
+
+	return TRUE;
 }
 
-bool_t
-open_rf_1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
+bool_t unlink_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	std::string name(argp->name);
+	sem_wait(&fifos_sem);
+	sem_wait(&handles_sem);
+	fifos_iter iter = fifos.find(name);
+	if (iter==fifos.end())
+	{
+		sem_post(&handles_sem);
+		sem_post(&fifos_sem);
+		*result = -1;
+		return TRUE;
+	}
+	fifo_info* item = iter->second;
 
-	/*
-	 * insert server code here
-	 */
+	*result = sem_wait(&(item->lock));
+	sem_post(&handles_sem);
 
-	return retval;
+	// TODO posprzatac z 'handles'
+	fifos.erase(iter);
+	delete item;
+	
+	sem_post(&fifos_sem);
+
+	printf("unlink: %s : %d\n", name.c_str(), *result);
+
+	return TRUE;
 }
 
-bool_t
-close_rf_1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
+bool_t open_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	std::string name(argp->name);
+	
+	sem_wait(&fifos_sem);
+	fifos_iter iter = fifos.find(name);
+	if (iter==fifos.end())
+	{
+		sem_post(&fifos_sem);
+		*result = -1;
+		return TRUE;
+	}
 
-	/*
-	 * insert server code here
-	 */
+	sem_wait(&(iter->second->lock));
+	sem_post(&fifos_sem);
 
-	return retval;
+	sem_wait(&handles_sem);
+	while (handles.find(next_handle)!=handles.end())
+	{
+		next_handle++;
+	}
+	handles[next_handle] = iter->second;
+	*result = next_handle;
+	// TODO handles w obiekcie
+	next_handle++;
+	sem_post(&handles_sem);
+
+	sem_post(&(iter->second->lock));
+
+	printf("open: %s : %d\n", name.c_str(), *result);
+
+	return TRUE;
 }
 
-bool_t
-write_rf_1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
+bool_t close_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	sem_wait(&handles_sem);
+	int handle = argp->descriptor;
+	handles_iter iter = handles.find(handle);
+	if (iter==handles.end())
+	{
+		*result = -1;
+		return TRUE;
+	}
+	std::string name(iter->second->name);
+	handles.erase(iter);
+	sem_post(&handles_sem);
 
-	/*
-	 * insert server code here
-	 */
+	*result = 0;
 
-	return retval;
+	printf("close: %s : %d\n", name.c_str(), *result);
+	return TRUE;
 }
 
-bool_t
-read_rf_1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
+bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	sem_wait(&handles_sem);
+	int handle = argp->descriptor;
+	handles_iter iter = handles.find(handle);
+	if (iter!=handles.end())
+	{
+		sem_wait(&(iter->second->lock));
+		sem_post(&handles_sem);
+		iter->second->data.write(argp->buf.buf_len, argp->buf.buf_val);
+		sem_post(&(iter->second->lock));
+		*result = 0;
 
-	/*
-	 * insert server code here
-	 */
+		std::string name(iter->second->name);
+		printf("write: [%s] : len=%d : code=%d :: MSG: [", name.c_str(), argp->buf.buf_len, *result);
+		for (int i=0; i<argp->buf.buf_len; i++) printf("%1c[%02x]", argp->buf.buf_val[i], argp->buf.buf_val[i]);
+		printf("]\n");
+	}
+	else
+	{
+		sem_post(&handles_sem);
+		*result = -1;
 
-	return retval;
+		printf("write: [?] : FAILED :%d\n", *result);
+	}
+
+	return TRUE;
 }
 
-int
-remote_fifo_1_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t result)
+bool_t read_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
+{
+	sem_wait(&handles_sem);
+	int handle = argp->descriptor;
+	handles_iter iter = handles.find(handle);
+	if (iter!=handles.end())
+	{
+		sem_wait(&(iter->second->lock));
+		sem_post(&handles_sem);
+		iter->second->data.read(argp->buf.buf_len, argp->buf.buf_val);
+		sem_post(&(iter->second->lock));
+
+		std::string name(iter->second->name);
+		printf("read: [%s] : len=%d : code=%d :: MSG: [", name.c_str(), argp->buf.buf_len, *result);
+		for (int i=0; i<argp->buf.buf_len; i++) printf("%02x:", argp->buf.buf_val[i]);
+		printf("]\n");
+	}
+	else
+	{
+		sem_post(&handles_sem);
+		*result = -1;
+	}
+	return TRUE;
+}
+
+int remote_fifo_1_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t result)
 {
 	xdr_free (xdr_result, result);
 
@@ -90,8 +229,7 @@ remote_fifo_1_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t result)
 	return 1;
 }
 
-bool_t
-create_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t create_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -102,8 +240,7 @@ create_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqst
 	return retval;
 }
 
-bool_t
-unlik_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t unlink_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -114,8 +251,7 @@ unlik_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp
 	return retval;
 }
 
-bool_t
-open_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t open_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -126,8 +262,7 @@ open_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 	return retval;
 }
 
-bool_t
-close_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t close_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -138,8 +273,7 @@ close_rf_res_101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp
 	return retval;
 }
 
-bool_t
-write_rf_res_101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t write_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -150,8 +284,7 @@ write_rf_res_101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
 	return retval;
 }
 
-bool_t
-read_rf_res_101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
+bool_t read_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 
@@ -162,8 +295,7 @@ read_rf_res_101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
 	return retval;
 }
 
-int
-remote_fifo_101_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t result)
+int remote_fifo_101_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t result)
 {
 	xdr_free (xdr_result, result);
 

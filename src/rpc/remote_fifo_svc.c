@@ -16,24 +16,27 @@
 #define SIG_PF void(*)(int)
 #endif
 
-static void
-remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
+// impl. w remote_fifo_server.c
+extern void server_rf_init();
+
+
+static void remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		management_rf create_rf_1_arg;
-		management_rf unlik_rf_1_arg;
-		management_rf open_rf_1_arg;
-		management_rf close_rf_1_arg;
-		data_rf write_rf_1_arg;
-		data_rf read_rf_1_arg;
+		management_rf create_rf__1_arg;
+		management_rf unlink_rf__1_arg;
+		management_rf open_rf__1_arg;
+		data_rf close_rf__1_arg;
+		data_rf write_rf__1_arg;
+		data_rf read_rf__1_arg;
 	} argument;
 	union {
-		int create_rf_1_res;
-		int unlik_rf_1_res;
-		int open_rf_1_res;
-		int close_rf_1_res;
-		int write_rf_1_res;
-		int read_rf_1_res;
+		int create_rf__1_res;
+		int unlink_rf__1_res;
+		int open_rf__1_res;
+		int close_rf__1_res;
+		int write_rf__1_res;
+		int read_rf__1_res;
 	} result;
 	bool_t retval;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -44,40 +47,40 @@ remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
 		return;
 
-	case create_rf:
+	case create_rf_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf_1_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf__1_svc;
 		break;
 
-	case unlik_rf:
+	case unlink_rf_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))unlik_rf_1_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))unlink_rf__1_svc;
 		break;
 
-	case open_rf:
+	case open_rf_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf_1_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf__1_svc;
 		break;
 
-	case close_rf:
-		_xdr_argument = (xdrproc_t) xdr_management_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf_1_svc;
-		break;
-
-	case write_rf:
+	case close_rf_:
 		_xdr_argument = (xdrproc_t) xdr_data_rf;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf_1_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf__1_svc;
 		break;
 
-	case read_rf:
+	case write_rf_:
 		_xdr_argument = (xdrproc_t) xdr_data_rf;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf_1_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf__1_svc;
+		break;
+
+	case read_rf_:
+		_xdr_argument = (xdrproc_t) xdr_data_rf;
+		_xdr_result = (xdrproc_t) xdr_int;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf__1_svc;
 		break;
 
 	default:
@@ -103,24 +106,23 @@ remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
-static void
-remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
+static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
-		management_rf_res create_rf_res_101_arg;
-		management_rf_res unlik_rf_res_101_arg;
-		management_rf_res open_rf_res_101_arg;
-		management_rf_res close_rf_res_101_arg;
-		data_rf_res write_rf_res_101_arg;
-		data_rf_res read_rf_res_101_arg;
+		management_rf_res create_rf_res__101_arg;
+		management_rf_res unlink_rf_res__101_arg;
+		management_rf_res open_rf_res__101_arg;
+		management_rf_res close_rf_res__101_arg;
+		data_rf_res write_rf_res__101_arg;
+		data_rf_res read_rf_res__101_arg;
 	} argument;
 	union {
-		int create_rf_res_101_res;
-		int unlik_rf_res_101_res;
-		int open_rf_res_101_res;
-		int close_rf_res_101_res;
-		int write_rf_res_101_res;
-		int read_rf_res_101_res;
+		int create_rf_res__101_res;
+		int unlink_rf_res__101_res;
+		int open_rf_res__101_res;
+		int close_rf_res__101_res;
+		int write_rf_res__101_res;
+		int read_rf_res__101_res;
 	} result;
 	bool_t retval;
 	xdrproc_t _xdr_argument, _xdr_result;
@@ -131,40 +133,40 @@ remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
 		return;
 
-	case create_rf_res:
+	case create_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf_res__101_svc;
 		break;
 
-	case unlik_rf_res:
+	case unlink_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))unlik_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))unlink_rf_res__101_svc;
 		break;
 
-	case open_rf_res:
+	case open_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf_res__101_svc;
 		break;
 
-	case close_rf_res:
+	case close_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf_res__101_svc;
 		break;
 
-	case write_rf_res:
+	case write_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_data_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf_res__101_svc;
 		break;
 
-	case read_rf_res:
+	case read_rf_res_:
 		_xdr_argument = (xdrproc_t) xdr_data_rf_res;
 		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf_res_101_svc;
+		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf_res__101_svc;
 		break;
 
 	default:
@@ -190,8 +192,7 @@ remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
-int
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
 
@@ -225,6 +226,8 @@ main (int argc, char **argv)
 		fprintf (stderr, "%s", "unable to register (REMOTE_FIFO, CLIENT_API, tcp).");
 		exit(1);
 	}
+
+	server_rf_init();
 
 	svc_run ();
 	fprintf (stderr, "%s", "svc_run returned");
