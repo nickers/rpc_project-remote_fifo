@@ -231,13 +231,16 @@ int remote_fifo_1_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t res
 
 bool_t create_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
-	bool_t retval;
+	int code;
+	char *name;
+	quad_t callback;
+	quad_t data;
 
-	/*
-	 * insert server code here
-	 */
+	
 
-	return retval;
+	*result = 0;
+
+	return TRUE;
 }
 
 bool_t unlink_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
