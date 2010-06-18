@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="53a60a55-dc94-43fb-a73e-2c4b79e516fa" name="Default" comment="" />
-    <ignored path=".idea/workspace.xml" />
     <ignored path="zdalnePotoki.iws" />
+    <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,28 +65,10 @@
   <component name="FileColors" enabled="true" enabledForTabs="true" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="readme.txt" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/readme.txt">
+      <file leaf-file-name="data_queue.cpp" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/data_queue.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="43" selection-start="1293" selection-end="1293" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="remote_fifo.x" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo.x">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="9" selection-start="138" selection-end="143" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="remote_fifo_client.c" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_client.c">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="34" selection-start="789" selection-end="789" vertical-scroll-proportion="0.7153502">
+            <state line="41" column="1" selection-start="637" selection-end="637" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -95,7 +77,43 @@
       <file leaf-file-name="remote_fifo_server.c" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_server.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="48" selection-start="277" selection-end="277" vertical-scroll-proportion="0.0">
+            <state line="259" column="0" selection-start="5171" selection-end="5171" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="remote_fifo.h" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="50" column="20" selection-start="748" selection-end="748" vertical-scroll-proportion="0.3343239">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="rf_test.cpp" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/rf_test.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="0" selection-start="620" selection-end="620" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="remote_fifo.cpp" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/remote_fifo.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="68" column="5" selection-start="1217" selection-end="1217" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="remote_fifo.h" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/remote_fifo.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="14" column="83" selection-start="487" selection-end="539" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -114,9 +132,15 @@
         <option value="$PROJECT_DIR$/Makefile" />
         <option value="$PROJECT_DIR$/src/readme.txt" />
         <option value="$PROJECT_DIR$/src/remote_fifo.h" />
-        <option value="$PROJECT_DIR$/src/rf_test.cpp" />
         <option value="$PROJECT_DIR$/src/rpc/remote_fifo.x" />
+        <option value="$PROJECT_DIR$/src/rpc/remote_fifo.h" />
         <option value="$PROJECT_DIR$/src/rpc/remote_fifo_client.c" />
+        <option value="$PROJECT_DIR$/src/data_queue.h" />
+        <option value="$PROJECT_DIR$/src/test-q.cpp" />
+        <option value="$PROJECT_DIR$/src/data_queue.cpp" />
+        <option value="$PROJECT_DIR$/src/rpc/remote_fifo_svc.c" />
+        <option value="$PROJECT_DIR$/src/remote_fifo.cpp" />
+        <option value="$PROJECT_DIR$/src/rf_test.cpp" />
         <option value="$PROJECT_DIR$/src/rpc/remote_fifo_server.c" />
       </list>
     </option>
@@ -156,7 +180,7 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -209,7 +233,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="Favorites" />
     </panes>
   </component>
@@ -217,7 +241,7 @@
     <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="options.lastSelected" value="com.advancedtools.cpp.CppSupportLoader" />
+    <property name="options.lastSelected" value="preferences.editor" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="MemberChooser.showClasses" value="true" />
@@ -381,7 +405,7 @@
     <supportedVersion>125</supportedVersion>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="852" extended-state="6" />
+    <frame x="0" y="0" width="1438" height="851" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -396,7 +420,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3994232" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.20836337" sideWeight="0.0" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21940623" sideWeight="0.0" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -459,72 +483,76 @@
         <state line="7" column="83" selection-start="154" selection-end="154" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
+    <entry file="file:///usr/include/sys/types.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="38" column="10" selection-start="1242" selection-end="1250" vertical-scroll-proportion="0.36042944" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_clnt.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="0" selection-start="246" selection-end="246" vertical-scroll-proportion="-2.0015337" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_client.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="40" column="23" selection-start="834" selection-end="834" vertical-scroll-proportion="0.3353204" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/readme.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="43" selection-start="1293" selection-end="1293" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="34" column="43" selection-start="1293" selection-end="1293" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data_queue.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="33" column="0" selection-start="450" selection-end="450" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo.x">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="9" selection-start="138" selection-end="143" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/sys/types.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="78" selection-start="1107" selection-end="1107" vertical-scroll-proportion="0.19821163">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="7" selection-start="525" selection-end="525" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="2" column="9" selection-start="40" selection-end="45" vertical-scroll-proportion="0.04587156" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_svc.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-2.2131147">
-          <folding />
-        </state>
+        <state line="19" column="7" selection-start="345" selection-end="345" vertical-scroll-proportion="-0.37890044" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test-q.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="4" selection-start="303" selection-end="303" vertical-scroll-proportion="0.44279346" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data_queue.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="1" selection-start="637" selection-end="637" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/remote_fifo.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="5" selection-start="1217" selection-end="1217" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/remote_fifo.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="57" selection-start="555" selection-end="555" vertical-scroll-proportion="0.4918033">
+        <state line="14" column="83" selection-start="487" selection-end="539" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_server.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="259" column="0" selection-start="5171" selection-end="5171" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/rf_test.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="56" selection-start="2100" selection-end="2100" vertical-scroll-proportion="0.7928465">
-          <folding />
-        </state>
+        <state line="19" column="0" selection-start="620" selection-end="620" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_server.c">
+    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="48" selection-start="277" selection-end="277" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_clnt.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="0" selection-start="2522" selection-end="2522" vertical-scroll-proportion="2.2131147">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/rpc/remote_fifo_client.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="34" selection-start="789" selection-end="789" vertical-scroll-proportion="0.7153502">
+        <state line="50" column="20" selection-start="748" selection-end="748" vertical-scroll-proportion="0.3343239">
           <folding />
         </state>
       </provider>
@@ -564,7 +592,13 @@
       <state key="ScopeChooserConfigurable.UI">
         <UIState>
           <splitter-proportions>
-            <SplitterProportionsDataImpl />
+            <SplitterProportionsDataImpl>
+              <option name="proportions">
+                <list>
+                  <option value="0.2" />
+                </list>
+              </option>
+            </SplitterProportionsDataImpl>
           </splitter-proportions>
           <settings />
         </UIState>
