@@ -132,6 +132,7 @@ int close_rf(int handle, rf_man_callback callback, void* data)
 
 int  read_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data)
 {
+// TODO zapakować wskaźnik na "buffer" do tablicy?
     int code = __call_remote_rw_func(handle, buffer, size, (rf_rw_callback)callback, data, read_rf__1);
     callback(handle,  code, buffer, size, data);
     return 0;
