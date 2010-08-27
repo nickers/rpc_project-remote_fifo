@@ -19,6 +19,14 @@ typedef void (*rf_rw_callback)(int handle, int code, void* buf, int len, void* d
  */
 int init_rf(char* host);
 
+/**
+ * \brief Create new remote fifo.
+ * \param name Name of remote-fifo to be created.
+ * \param callback Function where to pass results.
+ * \param data Pointer which will be passed to 'callback' function.
+ * \param host Explicite server host which should be used. Give NULL to use host given in 'init_rf' function. [default: NULL]
+ * \return 0 on success, <0 on error ( -1 - already exists ).
+ */
 extern int create_rf(char* name, rf_man_callback callback, void* data, char* host=NULL);
 extern int unlink_rf(char* name, rf_man_callback callback, void* data, char* host=NULL);
 

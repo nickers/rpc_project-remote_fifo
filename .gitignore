@@ -1,2 +1,6 @@
 *.o
+**/*.o
+**/**/*.o
+src/rpc/remote_fifo_server
+src/rpc/remote_fifo_client
 a.out

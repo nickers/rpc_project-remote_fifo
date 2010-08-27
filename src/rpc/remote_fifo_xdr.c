@@ -12,9 +12,9 @@ xdr_management_rf (XDR *xdrs, management_rf *objp)
 
 	 if (!xdr_string (xdrs, &objp->name, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->callback))
+	 if (!xdr_bytes (xdrs, (char **)&objp->callback.callback_val, (u_int *) &objp->callback.callback_len, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->data))
+	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
 		 return FALSE;
 	return TRUE;
 }
@@ -29,9 +29,9 @@ xdr_data_rf (XDR *xdrs, data_rf *objp)
 	 if (!xdr_array (xdrs, (char **)&objp->buf.buf_val, (u_int *) &objp->buf.buf_len, ~0,
 		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->callback))
+	 if (!xdr_bytes (xdrs, (char **)&objp->callback.callback_val, (u_int *) &objp->callback.callback_len, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->data))
+	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
 		 return FALSE;
 	return TRUE;
 }
@@ -45,9 +45,9 @@ xdr_management_rf_res (XDR *xdrs, management_rf_res *objp)
 		 return FALSE;
 	 if (!xdr_string (xdrs, &objp->name, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->callback))
+	 if (!xdr_bytes (xdrs, (char **)&objp->callback.callback_val, (u_int *) &objp->callback.callback_len, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->data))
+	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
 		 return FALSE;
 	return TRUE;
 }
@@ -64,9 +64,9 @@ xdr_data_rf_res (XDR *xdrs, data_rf_res *objp)
 	 if (!xdr_array (xdrs, (char **)&objp->buf.buf_val, (u_int *) &objp->buf.buf_len, ~0,
 		sizeof (char), (xdrproc_t) xdr_char))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->callback))
+	 if (!xdr_bytes (xdrs, (char **)&objp->callback.callback_val, (u_int *) &objp->callback.callback_len, ~0))
 		 return FALSE;
-	 if (!xdr_quad_t (xdrs, &objp->data))
+	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
 		 return FALSE;
 	return TRUE;
 }

@@ -16,11 +16,11 @@
 #define SIG_PF void(*)(int)
 #endif
 
-// impl. w remote_fifo_server.c
-extern void server_rf_init();
+// declare init function
+void server_rf_init();
 
-
-static void remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
+static void
+remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
 		management_rf create_rf__1_arg;
@@ -106,7 +106,8 @@ static void remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
-static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
+static void
+remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
 		management_rf_res create_rf_res__101_arg;
@@ -192,9 +193,12 @@ static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
-int main (int argc, char **argv)
+int
+main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
+
+	server_rf_init();
 
 	pmap_unset (REMOTE_FIFO, SERVER_API);
 	pmap_unset (REMOTE_FIFO, CLIENT_API);
@@ -226,8 +230,6 @@ int main (int argc, char **argv)
 		fprintf (stderr, "%s", "unable to register (REMOTE_FIFO, CLIENT_API, tcp).");
 		exit(1);
 	}
-
-	server_rf_init();
 
 	svc_run ();
 	fprintf (stderr, "%s", "svc_run returned");

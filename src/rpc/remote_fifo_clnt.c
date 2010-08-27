@@ -7,7 +7,7 @@
 #include "remote_fifo.h"
 
 /* Default timeout can be changed using clnt_control() */
-static struct timeval TIMEOUT = { 25, 0 };
+static struct timeval TIMEOUT = { 5, 0 };
 
 enum clnt_stat 
 create_rf__1(management_rf *argp, int *clnt_res, CLIENT *clnt)

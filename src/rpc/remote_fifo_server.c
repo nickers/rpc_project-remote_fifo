@@ -51,6 +51,7 @@ void server_rf_init()
 	sem_init(&overal_sem, 1, 1);
 	sem_init(&fifos_sem, 1, 1);
 	sem_init(&handles_sem, 1, 1);
+	printf("init done\n");
 }
 
 /**
@@ -66,7 +67,7 @@ bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	if (iter!=fifos.end()) {
 		sem_post(&fifos_sem);
 		*result = -1;
-		return true;
+		return TRUE;
 	}
 
 	*result = 0;

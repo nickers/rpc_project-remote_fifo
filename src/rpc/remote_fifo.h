@@ -17,8 +17,14 @@ extern "C" {
 
 struct management_rf {
 	char *name;
-	quad_t callback;
-	quad_t data;
+	struct {
+		u_int callback_len;
+		char *callback_val;
+	} callback;
+	struct {
+		u_int data_len;
+		char *data_val;
+	} data;
 };
 typedef struct management_rf management_rf;
 
@@ -28,16 +34,28 @@ struct data_rf {
 		u_int buf_len;
 		char *buf_val;
 	} buf;
-	quad_t callback;
-	quad_t data;
+	struct {
+		u_int callback_len;
+		char *callback_val;
+	} callback;
+	struct {
+		u_int data_len;
+		char *data_val;
+	} data;
 };
 typedef struct data_rf data_rf;
 
 struct management_rf_res {
 	int code;
 	char *name;
-	quad_t callback;
-	quad_t data;
+	struct {
+		u_int callback_len;
+		char *callback_val;
+	} callback;
+	struct {
+		u_int data_len;
+		char *data_val;
+	} data;
 };
 typedef struct management_rf_res management_rf_res;
 
@@ -48,8 +66,14 @@ struct data_rf_res {
 		u_int buf_len;
 		char *buf_val;
 	} buf;
-	quad_t callback;
-	quad_t data;
+	struct {
+		u_int callback_len;
+		char *callback_val;
+	} callback;
+	struct {
+		u_int data_len;
+		char *data_val;
+	} data;
 };
 typedef struct data_rf_res data_rf_res;
 

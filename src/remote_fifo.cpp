@@ -58,8 +58,12 @@ int __call_remote_man_func(char* name, rf_man_callback callback, void* data, cha
     }
 
     args.name = name;
-    args.callback = (quad_t)callback;
-    args.data = (quad_t)data;
+
+    args.callback.callback_len = sizeof(callback);
+    args.callback.callback_val = (char*)&callback;
+
+    args.data.data_len = sizeof(data);
+    args.data.data_val = (char*)data;
 
     CLIENT *c = __aquire_client(host);
     int ret_val = func(&args, &result, c);
@@ -78,8 +82,13 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 	int result = 0;
 
 	args.descriptor = handle;
-	args.callback = (quad_t)callback;
-	args.data = (quad_t)data;
+
+    args.callback.callback_len = sizeof(callback);
+    args.callback.callback_val = (char*)&callback;
+
+    args.data.data_len = sizeof(data);
+    args.data.data_val = (char*)&data;
+
 	args.buf.buf_len = size;
 	args.buf.buf_val = (char*)buffer;
 

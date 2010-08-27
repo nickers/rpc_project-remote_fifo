@@ -1,29 +1,29 @@
 struct management_rf {
 	string name<>;
-	hyper callback;
-	hyper data;
+	opaque callback<>;
+	opaque data<>;
 };
 
 struct data_rf {
 	int descriptor;
 	char buf<>;
-	hyper callback;
-	hyper data;
+	opaque callback<>;
+	opaque data<>;
 };
 
 struct management_rf_res {
 	int code;
 	string name<>;
-	hyper callback;
-	hyper data;
+	opaque callback<>;
+	opaque data<>;
 };
 
 struct data_rf_res {
 	int descriptor;
 	int code;
 	char buf<>;
-	hyper callback;
-	hyper data;
+	opaque callback<>;
+	opaque data<>;
 };
 
 program REMOTE_FIFO {

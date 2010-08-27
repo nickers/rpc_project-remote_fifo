@@ -37,7 +37,8 @@ void open_callback(int rf, char* name, void* data) {
 }
 
 void write_callback(int rf, int code, void* buf, int len, void* data) {
-	int *length = new int;
+	delete[] buf;
+	int *length = new int[1];
 	printf("Message sent, code: %d. Now will read.\n", code);
 	read_rf(rf, length, sizeof(int), read_callback_1, data);
 }
@@ -47,16 +48,17 @@ void read_callback_1(int rf, int code, void* buf, int len, void* data) {
 	printf("Readed %d bytes, should be %ld.\n", len, sizeof(int));
 	printf("  - message to read length: %d\n", *msg_length);
 	printf("Reading message...\n");
-	*msg_length = 10;
+	*msg_length = 10; // TODO remove this!
 	char* read_buf = new char[*msg_length];
 	read_rf(rf, read_buf, *msg_length, read_callback_2, data);
-	delete msg_length;
+	delete[] buf;
 }
 
 void read_callback_2(int rf, int code, void* buf, int len, void* data) {
 	char* msg = (char*)buf;
 	printf("Readed message of length: %d\n", len);
 	printf("Message: %s\n", msg);
+	delete[] buf;
 	close_rf(rf, close_callback, data);
 }
 
