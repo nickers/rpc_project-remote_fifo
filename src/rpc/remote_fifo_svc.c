@@ -11,6 +11,7 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "remote_fifo_server_instance.h"
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
@@ -19,187 +20,14 @@
 // declare init function
 void server_rf_init();
 
-static void
-remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
-{
-	union {
-		management_rf create_rf__1_arg;
-		management_rf unlink_rf__1_arg;
-		management_rf open_rf__1_arg;
-		data_rf close_rf__1_arg;
-		data_rf write_rf__1_arg;
-		data_rf read_rf__1_arg;
-	} argument;
-	union {
-		int create_rf__1_res;
-		int unlink_rf__1_res;
-		int open_rf__1_res;
-		int close_rf__1_res;
-		int write_rf__1_res;
-		int read_rf__1_res;
-	} result;
-	bool_t retval;
-	xdrproc_t _xdr_argument, _xdr_result;
-	bool_t (*local)(char *, void *, struct svc_req *);
 
-	switch (rqstp->rq_proc) {
-	case NULLPROC:
-		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
-		return;
-
-	case create_rf_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf__1_svc;
-		break;
-
-	case unlink_rf_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))unlink_rf__1_svc;
-		break;
-
-	case open_rf_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf__1_svc;
-		break;
-
-	case close_rf_:
-		_xdr_argument = (xdrproc_t) xdr_data_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf__1_svc;
-		break;
-
-	case write_rf_:
-		_xdr_argument = (xdrproc_t) xdr_data_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf__1_svc;
-		break;
-
-	case read_rf_:
-		_xdr_argument = (xdrproc_t) xdr_data_rf;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf__1_svc;
-		break;
-
-	default:
-		svcerr_noproc (transp);
-		return;
-	}
-	memset ((char *)&argument, 0, sizeof (argument));
-	if (!svc_getargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-		svcerr_decode (transp);
-		return;
-	}
-	retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
-	if (retval > 0 && !svc_sendreply(transp, (xdrproc_t) _xdr_result, (char *)&result)) {
-		svcerr_systemerr (transp);
-	}
-	if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-		fprintf (stderr, "%s", "unable to free arguments");
-		exit (1);
-	}
-	if (!remote_fifo_1_freeresult (transp, _xdr_result, (caddr_t) &result))
-		fprintf (stderr, "%s", "unable to free results");
-
-	return;
-}
-
-static void
-remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
-{
-	union {
-		management_rf_res create_rf_res__101_arg;
-		management_rf_res unlink_rf_res__101_arg;
-		management_rf_res open_rf_res__101_arg;
-		management_rf_res close_rf_res__101_arg;
-		data_rf_res write_rf_res__101_arg;
-		data_rf_res read_rf_res__101_arg;
-	} argument;
-	union {
-		int create_rf_res__101_res;
-		int unlink_rf_res__101_res;
-		int open_rf_res__101_res;
-		int close_rf_res__101_res;
-		int write_rf_res__101_res;
-		int read_rf_res__101_res;
-	} result;
-	bool_t retval;
-	xdrproc_t _xdr_argument, _xdr_result;
-	bool_t (*local)(char *, void *, struct svc_req *);
-
-	switch (rqstp->rq_proc) {
-	case NULLPROC:
-		(void) svc_sendreply (transp, (xdrproc_t) xdr_void, (char *)NULL);
-		return;
-
-	case create_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))create_rf_res__101_svc;
-		break;
-
-	case unlink_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))unlink_rf_res__101_svc;
-		break;
-
-	case open_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))open_rf_res__101_svc;
-		break;
-
-	case close_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_management_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))close_rf_res__101_svc;
-		break;
-
-	case write_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_data_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))write_rf_res__101_svc;
-		break;
-
-	case read_rf_res_:
-		_xdr_argument = (xdrproc_t) xdr_data_rf_res;
-		_xdr_result = (xdrproc_t) xdr_int;
-		local = (bool_t (*) (char *, void *,  struct svc_req *))read_rf_res__101_svc;
-		break;
-
-	default:
-		svcerr_noproc (transp);
-		return;
-	}
-	memset ((char *)&argument, 0, sizeof (argument));
-	if (!svc_getargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-		svcerr_decode (transp);
-		return;
-	}
-	retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
-	if (retval > 0 && !svc_sendreply(transp, (xdrproc_t) _xdr_result, (char *)&result)) {
-		svcerr_systemerr (transp);
-	}
-	if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
-		fprintf (stderr, "%s", "unable to free arguments");
-		exit (1);
-	}
-	if (!remote_fifo_101_freeresult (transp, _xdr_result, (caddr_t) &result))
-		fprintf (stderr, "%s", "unable to free results");
-
-	return;
-}
-
-int
-main (int argc, char **argv)
+int main (int argc, char **argv)
 {
 	register SVCXPRT *transp;
 
 	server_rf_init();
-
+	run_rf_server();
+	/*
 	pmap_unset (REMOTE_FIFO, SERVER_API);
 	pmap_unset (REMOTE_FIFO, CLIENT_API);
 
@@ -232,6 +60,7 @@ main (int argc, char **argv)
 	}
 
 	svc_run ();
+	*/
 	fprintf (stderr, "%s", "svc_run returned");
 	exit (1);
 	/* NOTREACHED */

@@ -1,7 +1,13 @@
 #include "remote_fifo.h"
+#include "rpc/remote_fifo_client_instance.h"
 #include <string.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 char* __remote_fifo_host = NULL;
+rf_client_instance __client_instance;
+
 
 // internal
 CLIENT* __aquire_client(char* host)
@@ -40,6 +46,8 @@ void __release_client(CLIENT* c)
 // internal -- cleaning
 void clean_rf()
 {
+	sleep(10);
+	stop_rf_client(&__client_instance);
     if (__remote_fifo_host!=NULL)
     {
         free(__remote_fifo_host);
@@ -107,7 +115,9 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 int init_rf(char* host)
 {
     __remote_fifo_host = strdup( (host==NULL) ? "localhost" : host );
-     return 0;
+    __client_instance = run_rf_client(getpid());
+    atexit(clean_rf);
+    return 0;
 }
 
 int create_rf(char* name, rf_man_callback callback, void* data, char* host)
