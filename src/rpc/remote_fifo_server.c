@@ -5,9 +5,13 @@
  */
 
 #include "remote_fifo.h"
+#include "../remote_fifo.h"
 #include <map>
 #include <semaphore.h>
 #include <string>
+#include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "../data_queue.h"
 
 
@@ -42,6 +46,36 @@ sem_t overal_sem;
 sem_t fifos_sem;
 sem_t handles_sem;
 int next_handle = 1;
+
+
+/// -- -- --
+CLIENT* __aquire_client_callback(struct svc_req* req /*sockaddr_in* client_addr*/)
+{
+    CLIENT *c = NULL;
+    char host[200];
+
+    sockaddr_in* client_addr = svc_getcaller(req->rq_xprt);
+
+	inet_ntop(client_addr->sin_family, &client_addr->sin_addr, host, sizeof(host));
+	printf("HOST: %s\n", host);
+
+	c = clnt_create (host, REMOTE_FIFO, CLIENT_API, "tcp");
+	if (c == NULL)
+	{
+		clnt_pcreateerror (host);
+		exit (1);
+	}
+
+    return c;
+}
+
+/// -- -- --
+void __release_client_callback(CLIENT* c)
+{
+	clnt_destroy (c);
+}
+
+
 
 /**
  *
@@ -79,6 +113,19 @@ bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 
 	printf("create: %s : %d\n", name.c_str(), *result);
 
+	CLIENT *c = __aquire_client_callback(rqstp);
+	management_rf_res res;
+	res.code = 0;
+	res.name = argp->name;
+	res.data.data_len = argp->data.data_len;
+	res.data.data_val = argp->data.data_val;
+	res.callback.callback_len = argp->callback.callback_len;
+	res.callback.callback_val = argp->callback.callback_val;
+	int val = 0;
+	create_rf_res__101(&res, &val, c);
+	__release_client_callback(c);
+	printf(">>\n");
+
 	return TRUE;
 }
 
@@ -90,6 +137,7 @@ bool_t unlink_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	fifos_iter iter = fifos.find(name);
 	if (iter==fifos.end())
 	{
+		printf("unlink failed: %s : %d\n", name.c_str(), *result);
 		sem_post(&handles_sem);
 		sem_post(&fifos_sem);
 		*result = -1;
@@ -232,12 +280,12 @@ int remote_fifo_1_freeresult (SVCXPRT *transp, xdrproc_t xdr_result, caddr_t res
 
 bool_t create_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
-	int code;
-	char *name;
-	quad_t callback;
-	quad_t data;
-
-	
+	rf_man_callback *callback = (rf_man_callback*)argp->callback.callback_val;
+	char* name = argp->name;
+	void* data = argp->data.data_val;
+	printf("HERE\n!\n");
+	printf(" $$$ %d %s %s\n", callback, name, data);
+	(*callback)(0, name, data);
 
 	*result = 0;
 

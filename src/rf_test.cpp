@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include "remote_fifo.h"
@@ -19,7 +20,7 @@ void unlink_callback(int code, char* name, void* data);
 // -- end of definitions --
 
 void create_callback(int code, char* name, void* data) {
-	printf("Remote FIFO created: `%s`, code: %d\n", name, code);
+	printf("Remote FIFO created: `%s`, code: %d\n", name, code);fflush(NULL);
 	open_rf(name, open_callback, data);
 }
 
@@ -81,7 +82,9 @@ int main(int argc, const char* argv[]) {
   printf("Remote FIFO - test program\n");
 
   init_rf(host);
+  printf("PPP: %d\n", create_callback);
   create_rf(fifo_name, create_callback, pass_string);
-
+  fflush(NULL);
+sleep(10);
   return 0;
 }

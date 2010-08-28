@@ -96,17 +96,10 @@ static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 /**
  * Client-side working thread.
  */
-void* client_thread(void*)
+void* client_thread(void* param)
 {
-	svc_run();
-	return NULL;
-}
+	long long unique_id = *(long long*)param;
 
-/**
- *
- */
-rf_client_instance run_rf_client(long long unique_id)
-{
 	register SVCXPRT *transp;
 
 	pmap_unset (REMOTE_FIFO, CLIENT_API + unique_id);
@@ -131,10 +124,21 @@ rf_client_instance run_rf_client(long long unique_id)
 		fprintf (stderr, "%s", "unable to register (REMOTE_FIFO, CLIENT_API, tcp).");
 		exit(1);
 	}
+	svc_run();
+	printf("HOW??\n\n");
+	return NULL;
+}
 
+/**
+ *
+ */
+rf_client_instance run_rf_client(long long unique_id)
+{
 	rf_client_instance inst;
+	long long *param = new long long;
+	*param = unique_id;
 	inst.unique_id = unique_id;
-	pthread_create(&inst.client_thread, NULL, client_thread, NULL);
+	printf(" RPC thread started: %d\n", pthread_create(&inst.client_thread, NULL, client_thread, param));
 	return inst;
 }
 

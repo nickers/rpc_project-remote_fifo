@@ -46,7 +46,6 @@ void __release_client(CLIENT* c)
 // internal -- cleaning
 void clean_rf()
 {
-	sleep(10);
 	stop_rf_client(&__client_instance);
     if (__remote_fifo_host!=NULL)
     {
@@ -115,7 +114,7 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 int init_rf(char* host)
 {
     __remote_fifo_host = strdup( (host==NULL) ? "localhost" : host );
-    __client_instance = run_rf_client(getpid());
+    __client_instance = run_rf_client(0/*getpid()*/);
     atexit(clean_rf);
     return 0;
 }
@@ -123,7 +122,7 @@ int init_rf(char* host)
 int create_rf(char* name, rf_man_callback callback, void* data, char* host)
 {
     __call_remote_man_func(name, callback, data, host, create_rf__1);
-    callback(0, name, data);
+    //callback(0, name, data);
     return 0;
 }
 
@@ -137,7 +136,7 @@ int unlink_rf(char* name, rf_man_callback callback, void* data, char* host)
 int  open_rf(char* name, rf_man_callback callback,  void* data, char* host)
 {
     int r = __call_remote_man_func(name, callback, data, host, open_rf__1);
-    callback(r, name, data);
+    callback(1, name, data);
     return 0;
 }
 

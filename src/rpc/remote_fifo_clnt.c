@@ -66,6 +66,7 @@ read_rf__1(data_rf *argp, int *clnt_res, CLIENT *clnt)
 enum clnt_stat 
 create_rf_res__101(management_rf_res *argp, int *clnt_res, CLIENT *clnt)
 {
+printf("call\n\n");
 	return (clnt_call(clnt, create_rf_res_,
 		(xdrproc_t) xdr_management_rf_res, (caddr_t) argp,
 		(xdrproc_t) xdr_int, (caddr_t) clnt_res,
