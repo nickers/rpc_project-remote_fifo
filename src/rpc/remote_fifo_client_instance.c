@@ -77,10 +77,12 @@ static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 		svcerr_decode (transp);
 		return;
 	}
-	retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
+	retval = 1;
+	result.close_rf_res__101_res = 0;
 	if (retval > 0 && !svc_sendreply(transp, (xdrproc_t) _xdr_result, (char *)&result)) {
 		svcerr_systemerr (transp);
 	}
+	retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
 	if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
 		fprintf (stderr, "%s", "unable to free arguments");
 		exit (1);
@@ -100,6 +102,7 @@ sem_t starting;
 void* client_thread(void* param)
 {
 	long long unique_id = *(long long*)param;
+	free(param);
 
 	register SVCXPRT *transp;
 
@@ -139,7 +142,7 @@ rf_client_instance run_rf_client(long long unique_id)
 {
 	sem_init(&starting, 0, 0);
 	rf_client_instance inst;
-	long long *param = new long long;
+	long long *param = (long long*)malloc(sizeof(long long));
 	*param = unique_id;
 	inst.unique_id = unique_id;
 	printf(" RPC thread started: %d\n", pthread_create(&inst.client_thread, NULL, client_thread, param));

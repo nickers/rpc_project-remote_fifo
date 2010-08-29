@@ -25,6 +25,7 @@ struct management_rf {
 		u_int data_len;
 		char *data_val;
 	} data;
+	int uid;
 };
 typedef struct management_rf management_rf;
 
@@ -42,6 +43,7 @@ struct data_rf {
 		u_int data_len;
 		char *data_val;
 	} data;
+	int uid;
 };
 typedef struct data_rf data_rf;
 

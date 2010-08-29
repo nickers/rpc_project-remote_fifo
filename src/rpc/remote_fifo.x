@@ -2,6 +2,7 @@ struct management_rf {
 	string name<>;
 	opaque callback<>;
 	opaque data<>;
+	int uid;
 };
 
 struct data_rf {
@@ -9,6 +10,7 @@ struct data_rf {
 	char buf<>;
 	opaque callback<>;
 	opaque data<>;
+	int uid;
 };
 
 struct management_rf_res {

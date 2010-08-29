@@ -16,6 +16,8 @@ xdr_management_rf (XDR *xdrs, management_rf *objp)
 		 return FALSE;
 	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
 		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->uid))
+		 return FALSE;
 	return TRUE;
 }
 
@@ -32,6 +34,8 @@ xdr_data_rf (XDR *xdrs, data_rf *objp)
 	 if (!xdr_bytes (xdrs, (char **)&objp->callback.callback_val, (u_int *) &objp->callback.callback_len, ~0))
 		 return FALSE;
 	 if (!xdr_bytes (xdrs, (char **)&objp->data.data_val, (u_int *) &objp->data.data_len, ~0))
+		 return FALSE;
+	 if (!xdr_int (xdrs, &objp->uid))
 		 return FALSE;
 	return TRUE;
 }

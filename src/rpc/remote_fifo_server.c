@@ -50,17 +50,19 @@ int next_handle = 1;
 
 
 /// -- -- --
-CLIENT* __aquire_client_callback(struct svc_req* req /*sockaddr_in* client_addr*/)
+CLIENT* __aquire_client_callback(struct svc_req* req, int uid /*sockaddr_in* client_addr*/)
 {
     CLIENT *c = NULL;
     char host[200];
+
+    printf("Client: %d\n", uid);
 
     sockaddr_in* client_addr = svc_getcaller(req->rq_xprt);
 
 	inet_ntop(client_addr->sin_family, &client_addr->sin_addr, host, sizeof(host));
 //	printf("HOST: %s\n", host);
 
-	c = clnt_create (host, REMOTE_FIFO, CLIENT_API, "tcp");
+	c = clnt_create (host, REMOTE_FIFO, CLIENT_API+uid, "tcp");
 	if (c == NULL)
 	{
 		clnt_pcreateerror (host);
@@ -92,41 +94,120 @@ void server_rf_init()
 typedef clnt_stat (*management_rf_res_func)(management_rf_res*,int*,CLIENT*);
 typedef clnt_stat (*data_rf_res_func)(data_rf_res*,int*,CLIENT*);
 
+struct client_thread {
+	void* res;
+	void* func;
+	CLIENT* client;
+};
+typedef client_thread client_mngm_thread;
+
+void free_rf_res(management_rf_res* res)
+{
+	free(res->name);
+	free(res->callback.callback_val);
+	free(res->data.data_val);
+	free(res);
+}
+
+void free_rf_res(data_rf_res* res)
+{
+	free(res->buf.buf_val);
+	free(res->callback.callback_val);
+	free(res->data.data_val);
+	free(res);
+}
+
+void* mngm_result_th(void* d)
+{
+	client_mngm_thread* data = (client_mngm_thread*)d;
+	management_rf_res_func func = (management_rf_res_func)data->func;
+	management_rf_res *res = (management_rf_res*)data->res;
+
+	int val = 0;
+	func(res, &val, data->client);
+
+	__release_client_callback(data->client);
+	free_rf_res(res);
+	free(data);
+	return NULL;
+}
+
+void* data_result_th(void* d)
+{
+	client_mngm_thread* data = (client_mngm_thread*)d;
+	data_rf_res_func func = (data_rf_res_func)data->func;
+	data_rf_res *res = (data_rf_res*)data->res;
+
+	int val = 0;
+	func(res, &val, data->client);
+
+	__release_client_callback(data->client);
+	free_rf_res(res);
+	free(data);
+	return NULL;
+}
+
 void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* argp, management_rf_res_func func)
 {
 	printf(" * -call mngm: %d : %s : len %d\n", code, argp->name, argp->data.data_len);fflush(NULL);
-	CLIENT *c = __aquire_client_callback(rqstp);
-	management_rf_res res;
-	res.code = code;
-	res.name = argp->name;
-	res.data.data_len = argp->data.data_len;
-	res.data.data_val = argp->data.data_val;
-	res.callback.callback_len = argp->callback.callback_len;
-	res.callback.callback_val = argp->callback.callback_val;
+	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
+	struct management_rf_res *res = (management_rf_res*)malloc(sizeof(struct management_rf_res));
+	res->code = code;
+	res->name = strdup(argp->name);
+
+	res->data.data_len = argp->data.data_len;
+	res->data.data_val = (char*)malloc(argp->data.data_len);
+	memcpy(res->data.data_val, argp->data.data_val, argp->data.data_len);
+
+	res->callback.callback_len = argp->callback.callback_len;
+	res->callback.callback_val = (char*)malloc(argp->callback.callback_len);
+	memcpy(res->callback.callback_val, argp->callback.callback_val, argp->callback.callback_len);
 	int val = 0;
 	//create_rf_res__101(&res, &val, c);
-	func(&res, &val, c);
-	__release_client_callback(c);
+	////func(&res, &val, c);
+	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
+	data->res = res;
+	data->func = (void*)func;
+	data->client = c;
+	//__release_client_callback(c);
+	pthread_t th;
+	pthread_create(&th, NULL, mngm_result_th, data);
+	pthread_detach(th);
 }
 
 void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *rqstp, data_rf* argp, data_rf_res_func func)
 {
 	printf(" * -call data: %d : %d : buf len: %d, data len %d\n", code, argp->descriptor, buf_len, argp->data.data_len);fflush(NULL);
-	CLIENT *c = __aquire_client_callback(rqstp);
-	data_rf_res res;
-	res.descriptor = argp->descriptor;
-	res.code = code;
-	//res.name = argp->name;
-	res.buf.buf_len = buf_len;
-	res.buf.buf_val = (char*)buf;
-	res.data.data_len = argp->data.data_len;
-	res.data.data_val = argp->data.data_val;
-	res.callback.callback_len = argp->callback.callback_len;
-	res.callback.callback_val = argp->callback.callback_val;
+	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
+	data_rf_res* res = (data_rf_res*)malloc(sizeof(data_rf_res));
+	res->descriptor = argp->descriptor;
+	res->code = code;
+
+	res->buf.buf_len = buf_len;
+	res->buf.buf_val = (char*)malloc(buf_len);
+	memcpy(res->buf.buf_val, buf, buf_len);
+
+	res->data.data_len = argp->data.data_len;
+	res->data.data_val = (char*)malloc(argp->data.data_len);
+	memcpy(res->data.data_val, argp->data.data_val, argp->data.data_len);
+
+	res->callback.callback_len = argp->callback.callback_len;
+	res->callback.callback_val = (char*)malloc(argp->callback.callback_len);
+	memcpy(res->callback.callback_val, argp->callback.callback_val, argp->callback.callback_len);
+
 	int val = 0;
+	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
+	data->res = (void*)res;
+	data->func = (void*)func;
+	data->client = c;
+	//__release_client_callback(c);
+	pthread_t th;
+	pthread_create(&th, NULL, data_result_th, data);
+	pthread_detach(th);
+
 	//create_rf_res__101(&res, &val, c);
-	func(&res, &val, c);
-	__release_client_callback(c);
+	//func(&res, &val, c);
+	//__release_client_callback(c);
 }
 
 /**
@@ -148,7 +229,7 @@ bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	*result = 0;
 	fifos[name] = new fifo_info(name);
 
-	// ta sama kolejnosc - mikro-optymalizacja... 
+	// ta sama kolejnosc - mikro-optymalizacja...
 	//sem_post(&overal_sem);
 	sem_post(&fifos_sem);
 
@@ -195,7 +276,7 @@ bool_t unlink_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 bool_t open_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 {
 	std::string name(argp->name);
-	
+
 	sem_wait(&fifos_sem);
 	fifos_iter iter = fifos.find(name);
 	if (iter==fifos.end())
@@ -251,6 +332,7 @@ bool_t close_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 	argp2.data.data_val = argp->data.data_val;
 	argp2.callback.callback_len = argp->callback.callback_len;
 	argp2.callback.callback_val = argp->callback.callback_val;
+	argp2.uid = argp->uid;
 	call_client_mngm_result(*result, rqstp, &argp2, close_rf_res__101);
 	return TRUE;
 }
@@ -295,7 +377,7 @@ bool_t read_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 
 	unsigned long long size = 0;
 	memcpy(&size, argp->buf.buf_val, sizeof(size));
-	
+
 	printf(" # read: %d, len: %d (real len: %d)\n", argp->descriptor, argp->buf.buf_len, size);
 
 	sem_wait(&handles_sem);

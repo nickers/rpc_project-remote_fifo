@@ -75,14 +75,14 @@ static void remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 		svcerr_decode (transp);
 		return;
 	}
-	//retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
-	retval = TRUE;
-	result.close_rf__1_res = 0;
+	retval = (bool_t) (*local)((char *)&argument, (void *)&result, rqstp);
+	/*retval = TRUE;
+	result.close_rf__1_res = 0;*/
 	if (retval > 0 && !svc_sendreply(transp, (xdrproc_t) _xdr_result, (char *)&result)) {
 		svcerr_systemerr (transp);
 	}
 
-	(*local)((char *)&argument, (void *)&result, rqstp);
+	//(*local)((char *)&argument, (void *)&result, rqstp);
 
 	if (!svc_freeargs (transp, (xdrproc_t) _xdr_argument, (caddr_t) &argument)) {
 		fprintf (stderr, "%s", "unable to free arguments");

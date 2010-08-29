@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/times.h>
 
 char* __remote_fifo_host = NULL;
 rf_client_instance __client_instance;
-
 
 // internal
 CLIENT* __aquire_client(char* host)
@@ -23,14 +23,12 @@ CLIENT* __aquire_client(char* host)
 		__remote_fifo_host = host;
 	}
 
-
 	c = clnt_create (host, REMOTE_FIFO, SERVER_API, "tcp");
 	if (c == NULL)
 	{
 		clnt_pcreateerror (host);
 		exit (1);
 	}
-
     return c;
 }
 
@@ -69,8 +67,9 @@ int __call_remote_man_func(char* name, rf_man_callback callback, void* data, cha
     args.data.data_len = sizeof(data);
     args.data.data_val = (char*)&data;
 
-	printf(" # man_call:  '%s' '%s' %lld\n", name, (char*)data, (long long)callback);fflush(NULL);
+    args.uid = getpid();
 
+	printf(" # man_call:  '%s' '%s' %lld [%s]\n", name, (char*)data, (long long)callback, (char*)data);fflush(NULL);
     CLIENT *c = __aquire_client(host);
     int ret_val = func(&args, &result, c);
 	if (ret_val != RPC_SUCCESS)
@@ -97,6 +96,7 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 
 	args.buf.buf_len = size;
 	args.buf.buf_val = (char*)buffer;
+	args.uid = getpid();
 
 	CLIENT *c = __aquire_client(NULL);
 	printf(" # data_call: '%d' '%s' %lld\n", handle, (char*)data, (long long)callback);fflush(NULL);
@@ -114,13 +114,14 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 int init_rf(char* host)
 {
     __remote_fifo_host = strdup( (host==NULL) ? "localhost" : host );
-    __client_instance = run_rf_client(0/*getpid()*/);
+    __client_instance = run_rf_client(getpid());
     atexit(clean_rf);
     return 0;
 }
 
 int create_rf(char* name, rf_man_callback callback, void* data, char* host)
 {
+
     __call_remote_man_func(name, callback, data, host, create_rf__1);
     //callback(0, name, data);
     return 0;
@@ -157,6 +158,7 @@ int  read_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback c
 	memcpy(&tmp_buf[sizeof(size)], &buffer, sizeof(buffer));
 
     /*int code = */__call_remote_rw_func(handle, tmp_buf, all_len, (rf_rw_callback)callback, data, read_rf__1);
+    delete[] tmp_buf;
     //callback(handle,  code, buffer, size, data);
     return 0;
 }

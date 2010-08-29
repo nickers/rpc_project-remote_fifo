@@ -40,10 +40,11 @@ void open_callback(int rf, char* name, void* data) {
 	memcpy(&(buf[sizeof(len)]), test, len);
 
 	write_rf(rf, buf, sizeof(int)+len, write_callback, data);
+	delete[] buf;
 }
 
 void write_callback(int rf, int code, void* buf, int len, void* data) {
-	delete[] (char*)buf;
+	//delete[] (char*)buf;
 	int *length = new int[1];
 	printf("Message sent, code: %d. Now will read.\n", code);
 	read_rf(rf, length, sizeof(int), read_callback_1, data);
@@ -64,7 +65,7 @@ void read_callback_1(int rf, int code, void* buf, int len, void* data) {
 void read_callback_2(int rf, int code, void* buf, int len, void* data) {
 	char* msg = (char*)buf;
 	printf("Readed message of length: %d\n", len);
-	printf("Message: %*s\n", len, msg);
+	printf("Message: [%*s]\n", len, msg);
 	delete[] (char*)buf;
 	close_rf(rf, close_callback, data);
 }
@@ -82,9 +83,9 @@ void unlink_callback(int code, char* name, void* data) {
 
 
 int main(int argc, const char* argv[]) {
-  char *pass_string = strdup("przekaz dalej");
-  char *fifo_name = strdup("/test.fifo");
-  char *host = strdup("127.0.0.1");
+  char *pass_string = "przekaz dalej";
+  char *fifo_name = "/test.fifo";
+  char *host = "127.0.0.1";
 
   printf("Remote FIFO - test program\n");
   sem_init(&finished_test, 0, 0);
@@ -92,5 +93,6 @@ int main(int argc, const char* argv[]) {
   create_rf(fifo_name, create_callback, pass_string);
   fflush(NULL);
   sem_wait(&finished_test);
+
   return 0;
 }
