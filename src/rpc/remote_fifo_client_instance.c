@@ -2,6 +2,7 @@
 #include "remote_fifo_client_instance.h"
 #include <rpc/pmap_clnt.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 
 static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
@@ -90,7 +91,7 @@ static void remote_fifo_101(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
-
+sem_t starting;
 
 
 /**
@@ -125,6 +126,7 @@ void* client_thread(void* param)
 		exit(1);
 	}
 	printf("Thread created\n");
+	sem_post(&starting);
 	svc_run();
 	printf("HOW??\n\n");
 	return NULL;
@@ -135,11 +137,13 @@ void* client_thread(void* param)
  */
 rf_client_instance run_rf_client(long long unique_id)
 {
+	sem_init(&starting, 0, 0);
 	rf_client_instance inst;
 	long long *param = new long long;
 	*param = unique_id;
 	inst.unique_id = unique_id;
 	printf(" RPC thread started: %d\n", pthread_create(&inst.client_thread, NULL, client_thread, param));
+	sem_wait(&starting);
 	return inst;
 }
 

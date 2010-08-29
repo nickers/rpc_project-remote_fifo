@@ -84,7 +84,7 @@ void unlink_callback(int code, char* name, void* data) {
 int main(int argc, const char* argv[]) {
   char *pass_string = strdup("przekaz dalej");
   char *fifo_name = strdup("/test.fifo");
-  char *host = strdup("localhost");
+  char *host = strdup("127.0.0.1");
 
   printf("Remote FIFO - test program\n");
   sem_init(&finished_test, 0, 0);

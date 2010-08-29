@@ -58,7 +58,7 @@ CLIENT* __aquire_client_callback(struct svc_req* req /*sockaddr_in* client_addr*
     sockaddr_in* client_addr = svc_getcaller(req->rq_xprt);
 
 	inet_ntop(client_addr->sin_family, &client_addr->sin_addr, host, sizeof(host));
-	printf("HOST: %s\n", host);
+//	printf("HOST: %s\n", host);
 
 	c = clnt_create (host, REMOTE_FIFO, CLIENT_API, "tcp");
 	if (c == NULL)
@@ -86,7 +86,7 @@ void server_rf_init()
 	sem_init(&overal_sem, 0, 1);
 	sem_init(&fifos_sem, 0, 1);
 	sem_init(&handles_sem, 0, 1);
-	printf("init done\n");
+	printf("@ Init done\n");
 }
 
 typedef clnt_stat (*management_rf_res_func)(management_rf_res*,int*,CLIENT*);
@@ -94,6 +94,7 @@ typedef clnt_stat (*data_rf_res_func)(data_rf_res*,int*,CLIENT*);
 
 void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* argp, management_rf_res_func func)
 {
+	printf(" * -call mngm: %d : %s : len %d\n", code, argp->name, argp->data.data_len);fflush(NULL);
 	CLIENT *c = __aquire_client_callback(rqstp);
 	management_rf_res res;
 	res.code = code;
@@ -110,6 +111,7 @@ void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* arg
 
 void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *rqstp, data_rf* argp, data_rf_res_func func)
 {
+	printf(" * -call data: %d : %d : buf len: %d, data len %d\n", code, argp->descriptor, buf_len, argp->data.data_len);fflush(NULL);
 	CLIENT *c = __aquire_client_callback(rqstp);
 	data_rf_res res;
 	res.descriptor = argp->descriptor;
@@ -150,7 +152,7 @@ bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	//sem_post(&overal_sem);
 	sem_post(&fifos_sem);
 
-	printf("create: %s : %d :: %d\n", name.c_str(), *result, argp->data.data_len);
+	printf(" # create: %s : %d :: %d\n", name.c_str(), *result, argp->data.data_len);
 
 	call_client_mngm_result(0, rqstp, argp, create_rf_res__101);
 
@@ -165,25 +167,27 @@ bool_t unlink_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	fifos_iter iter = fifos.find(name);
 	if (iter==fifos.end())
 	{
-		printf("unlink failed: %s : %d\n", name.c_str(), *result);
+		printf(" # unlink failed: %s : %d\n", name.c_str(), *result);
 		sem_post(&handles_sem);
 		sem_post(&fifos_sem);
 		*result = -1;
-		return TRUE;
 	}
-	fifo_info* item = iter->second;
+	else
+	{
+		fifo_info* item = iter->second;
 
-	*result = sem_wait(&(item->lock));
-	sem_post(&handles_sem);
+		*result = sem_wait(&(item->lock));
+		sem_post(&handles_sem);
 
-	// TODO posprzatac z 'handles'
-	fifos.erase(iter);
-	delete item;
-	
-	sem_post(&fifos_sem);
+		// TODO posprzatac z 'handles'
+		fifos.erase(iter);
+		delete item;
 
+		sem_post(&fifos_sem);
+
+		printf(" # unlink: %s : %d\n", name.c_str(), *result);
+	}
 	call_client_mngm_result(0, rqstp, argp, unlink_rf_res__101);
-	printf("unlink: %s : %d\n", name.c_str(), *result);
 
 	return TRUE;
 }
@@ -217,8 +221,8 @@ bool_t open_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 
 	sem_post(&(iter->second->lock));
 
+	printf(" # open: %s : %d\n", name.c_str(), *result);
 	call_client_mngm_result(*result, rqstp, argp, open_rf_res__101);
-	printf("open: %s : %d\n", name.c_str(), *result);
 
 	return TRUE;
 }
@@ -240,13 +244,20 @@ bool_t close_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 
 	*result = 0;
 
-	printf("close: %s : %d\n", name.c_str(), *result);
+	printf(" # close: %s : %d\n", name.c_str(), *result);
+	management_rf argp2;
+	argp2.name = (char*)name.c_str();
+	argp2.data.data_len = argp->data.data_len;
+	argp2.data.data_val = argp->data.data_val;
+	argp2.callback.callback_len = argp->callback.callback_len;
+	argp2.callback.callback_val = argp->callback.callback_val;
+	call_client_mngm_result(*result, rqstp, &argp2, close_rf_res__101);
 	return TRUE;
 }
 
 bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 {
-	printf(" # %s: %d, len: %d\n", "write_rf__1_svc", argp->descriptor, argp->buf.buf_len);
+	printf(" # write: %d, len: %d\n", argp->descriptor, argp->buf.buf_len);
 	sem_wait(&handles_sem);
 	int handle = argp->descriptor;
 	handles_iter iter = handles.find(handle);
@@ -258,17 +269,19 @@ bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 		sem_post(&(iter->second->lock));
 		*result = 0;
 
+		/*
 		std::string name(iter->second->name);
 		printf("write: [%s] : len=%d : code=%d :: MSG: [", name.c_str(), argp->buf.buf_len, *result);
 		for (int i=0; i<argp->buf.buf_len; i++) printf("%1c[%02x]", argp->buf.buf_val[i], argp->buf.buf_val[i]);
 		printf("]\n");
+		*/
 	}
 	else
 	{
 		sem_post(&handles_sem);
 		*result = -1;
 
-		printf("write: [?] : FAILED :%d\n", *result);
+		printf(" # write: [%d] : FAILED :%d\n", handle, *result);
 	}
 
 	call_client_data_result(*result, NULL, 0, rqstp, argp, write_rf_res__101);
@@ -278,14 +291,14 @@ bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 
 bool_t read_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 {
-	printf(" # %s: %d, len: %d\n", "read_rf__1_svc", argp->descriptor, argp->buf.buf_len);
-	sem_wait(&handles_sem);
 	int handle = argp->descriptor;
 
 	unsigned long long size = 0;
 	memcpy(&size, argp->buf.buf_val, sizeof(size));
-	printf("   * read: len: %d\n", size);
+	
+	printf(" # read: %d, len: %d (real len: %d)\n", argp->descriptor, argp->buf.buf_len, size);
 
+	sem_wait(&handles_sem);
 	handles_iter iter = handles.find(handle);
 	if (iter!=handles.end())
 	{
@@ -304,9 +317,11 @@ bool_t read_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 		sem_post(&(iter->second->lock));
 
 		std::string name(iter->second->name);
+		/*
 		printf("read: [%s] : len=%d : code=%d :: MSG: [", name.c_str(), argp->buf.buf_len, *result);
 		for (int i=0; i<size; i++) printf("%02x:", argp->buf.buf_val[i+delta]);
 		printf("]\n");
+		*/
 	}
 	else
 	{
@@ -401,13 +416,13 @@ bool_t write_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqs
 
 	assert(sizeof(data)==argp->data.data_len);
 	memcpy(&data, argp->data.data_val, sizeof(data));
-	printf(" => write_rf_res__101_svc: %d/$d, len: %d, data: %lld\n", handle, code, argp->buf.buf_len, (char*)data);
+	printf(" => write_rf_res__101_svc: %d/%d, len: %d, data: %lld\n", handle, code, argp->buf.buf_len, (char*)data);
 	//(int handle, int code, void* buf, int len, void* data);
 	(*callback)(handle, code, NULL, 0, data);
 
 	*result = 0;
 
-	return TRUE;l;
+	return TRUE;
 }
 
 bool_t read_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqstp)
@@ -427,7 +442,7 @@ bool_t read_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqst
 
 	assert(sizeof(data)==argp->data.data_len);
 	memcpy(&data, argp->data.data_val, sizeof(data));
-	printf(" => read_rf_res__101_svc: %d/$d, len: %d, data: %lld\n", handle, code, size, (char*)data);
+	printf(" => read_rf_res__101_svc: %d/%d, len: %d, data: %lld\n", handle, code, size, (char*)data);
 	//(int handle, int code, void* buf, int len, void* data);
 	(*callback)(handle, code, buffer, size, data);
 
