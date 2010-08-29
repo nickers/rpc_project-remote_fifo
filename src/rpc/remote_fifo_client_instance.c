@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief Mains functions for creating RPC mini-server instance in remote_fifo client.
+ */
 #include "remote_fifo.h"
 #include "remote_fifo_client_instance.h"
 #include <rpc/pmap_clnt.h>

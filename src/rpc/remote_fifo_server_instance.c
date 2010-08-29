@@ -3,6 +3,10 @@
 #include <rpc/pmap_clnt.h>
 #include <pthread.h>
 
+/**
+ * \file
+ * \brief Mains functions for creating RPC server instance in remote_fifo server.
+ */
 static void remote_fifo_1(struct svc_req *rqstp, register SVCXPRT *transp)
 {
 	union {
