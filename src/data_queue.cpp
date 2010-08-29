@@ -29,10 +29,10 @@ data_queue::data_queue()
 	sem_init(&data_wait_sem, 0, 0);
 
 	// mozna zmieniac kolejke...
-	sem_init(&write_sem, 1, 1);
+	sem_init(&write_sem, 0, 1);
 
 	// mozna czytac z kolejki (choc sie zawisnie w oczekiwaniu na dane)...
-	sem_init(&read_sem, 1, 1);
+	sem_init(&read_sem, 0, 1);
 }
 
 /**

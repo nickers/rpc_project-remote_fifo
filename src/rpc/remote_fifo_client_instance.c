@@ -124,6 +124,7 @@ void* client_thread(void* param)
 		fprintf (stderr, "%s", "unable to register (REMOTE_FIFO, CLIENT_API, tcp).");
 		exit(1);
 	}
+	printf("Thread created\n");
 	svc_run();
 	printf("HOW??\n\n");
 	return NULL;
