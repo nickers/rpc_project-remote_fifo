@@ -15,21 +15,27 @@
 #include <assert.h>
 #include "../data_queue.h"
 
-
+/**
+ * \brief Information about single stream.
+ */
 class fifo_info {
 public:
+	/** \brief Stream name.
+	 */
 	std::string name;
+	/** \brief Data written to stream.
+	 */
 	data_queue	data;
+	/** \brief Usage lock.
+	 */
 	sem_t		lock;
-	int 		use_count;
-
-	// TODO dodać 'set<int> handles'
+//	int 		use_count;
 
 	fifo_info(std::string n)
 	{
 		name = n;
-		sem_init(&lock, 1, 1);
-		use_count = 0;
+		sem_init(&lock, 0, 1);
+//		use_count = 0;
 	}
 
 	~fifo_info()
@@ -43,24 +49,29 @@ public:
 std::map<std::string, fifo_info*> fifos;
 std::map<int, fifo_info*> handles;
 
+/*
+ * Server internal variables.
+ */
 sem_t overal_sem;
 sem_t fifos_sem;
 sem_t handles_sem;
 int next_handle = 1;
 
 
-/// -- -- --
-CLIENT* __aquire_client_callback(struct svc_req* req, int uid /*sockaddr_in* client_addr*/)
+/**
+ * \brief Create rpc-connection back to mini-server created by calling client.
+ * \param req RPC request passed to request processing function.
+ * \param uid Unique ID of client to which connect.
+ * \return RPC client's handle to mini-server.
+ */
+CLIENT* __aquire_client_callback(struct svc_req* req, int uid)
 {
     CLIENT *c = NULL;
     char host[200];
 
-    printf("Client: %d\n", uid);
-
     sockaddr_in* client_addr = svc_getcaller(req->rq_xprt);
 
 	inet_ntop(client_addr->sin_family, &client_addr->sin_addr, host, sizeof(host));
-//	printf("HOST: %s\n", host);
 
 	c = clnt_create (host, REMOTE_FIFO, CLIENT_API+uid, "tcp");
 	if (c == NULL)
@@ -72,86 +83,47 @@ CLIENT* __aquire_client_callback(struct svc_req* req, int uid /*sockaddr_in* cli
     return c;
 }
 
-/// -- -- --
+/**
+ * \brief Release client's handle.
+ * \param c Client's handle.
+ */
 void __release_client_callback(CLIENT* c)
 {
 	clnt_destroy (c);
 }
 
-
-
-/**
- *
- */
-void server_rf_init()
-{
-	sem_init(&overal_sem, 0, 1);
-	sem_init(&fifos_sem, 0, 1);
-	sem_init(&handles_sem, 0, 1);
-	printf("@ Init done\n");
-}
+//*****************************************************************************
+//** Internal utilities
+//
 
 typedef clnt_stat (*management_rf_res_func)(management_rf_res*,int*,CLIENT*);
 typedef clnt_stat (*data_rf_res_func)(data_rf_res*,int*,CLIENT*);
 
+/**
+ * \brief Structure with information needed to create thread calling client
+ * back with processing results.
+ */
 struct client_thread {
 	void* res;
 	void* func;
 	CLIENT* client;
 };
-typedef client_thread client_mngm_thread;
+typedef client_thread client_thread;
 
-void free_rf_res(management_rf_res* res)
+/**
+ * \brief Create and fill new 'management_rf_res' structure instance with given data.
+ *
+ * Returned structure is created by malloc() and must be freed by free() by
+ * programmer. All given data if copied, so passed arguments may be released
+ * just after returning from functions.
+ *
+ * \param argp Parameters passed to RPC function.
+ * \param code RPC-function's return code.
+ * \return Filled 'management_rf_res'.  
+ */
+management_rf_res* create_management_rf_res(management_rf* argp, int code)
 {
-	free(res->name);
-	free(res->callback.callback_val);
-	free(res->data.data_val);
-	free(res);
-}
-
-void free_rf_res(data_rf_res* res)
-{
-	free(res->buf.buf_val);
-	free(res->callback.callback_val);
-	free(res->data.data_val);
-	free(res);
-}
-
-void* mngm_result_th(void* d)
-{
-	client_mngm_thread* data = (client_mngm_thread*)d;
-	management_rf_res_func func = (management_rf_res_func)data->func;
-	management_rf_res *res = (management_rf_res*)data->res;
-
-	int val = 0;
-	func(res, &val, data->client);
-
-	__release_client_callback(data->client);
-	free_rf_res(res);
-	free(data);
-	return NULL;
-}
-
-void* data_result_th(void* d)
-{
-	client_mngm_thread* data = (client_mngm_thread*)d;
-	data_rf_res_func func = (data_rf_res_func)data->func;
-	data_rf_res *res = (data_rf_res*)data->res;
-
-	int val = 0;
-	func(res, &val, data->client);
-
-	__release_client_callback(data->client);
-	free_rf_res(res);
-	free(data);
-	return NULL;
-}
-
-void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* argp, management_rf_res_func func)
-{
-	printf(" * -call mngm: %d : %s : len %d\n", code, argp->name, argp->data.data_len);fflush(NULL);
-	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
-	struct management_rf_res *res = (management_rf_res*)malloc(sizeof(struct management_rf_res));
+	management_rf_res *res = (management_rf_res*)malloc(sizeof(management_rf_res));
 	res->code = code;
 	res->name = strdup(argp->name);
 
@@ -162,23 +134,50 @@ void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* arg
 	res->callback.callback_len = argp->callback.callback_len;
 	res->callback.callback_val = (char*)malloc(argp->callback.callback_len);
 	memcpy(res->callback.callback_val, argp->callback.callback_val, argp->callback.callback_len);
-	int val = 0;
-	//create_rf_res__101(&res, &val, c);
-	////func(&res, &val, c);
-	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
-	data->res = res;
-	data->func = (void*)func;
-	data->client = c;
-	//__release_client_callback(c);
-	pthread_t th;
-	pthread_create(&th, NULL, mngm_result_th, data);
-	pthread_detach(th);
+
+	return res;
 }
 
-void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *rqstp, data_rf* argp, data_rf_res_func func)
+/**
+ * \brief Shortcut to free all buffer inside given structure and structure itself.
+ *
+ * \param res Structure to be deallocated with inside buffers.
+ */
+void free_rf_res(management_rf_res* res)
 {
-	printf(" * -call data: %d : %d : buf len: %d, data len %d\n", code, argp->descriptor, buf_len, argp->data.data_len);fflush(NULL);
-	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
+	if (res->name!=NULL)
+	{
+		free(res->name);
+		res->name = NULL;
+	}
+	if (res->callback.callback_val!=NULL)
+	{
+		free(res->callback.callback_val);
+		res->callback.callback_val = NULL;
+	}
+	if (res->data.data_val!=NULL)
+	{
+		free(res->data.data_val);
+		res->data.data_val = NULL;
+	}
+	free(res);
+}
+
+/**
+ * \brief Create and fill new 'data_rf_res' structure instance with given data.
+ *
+ * Returned structure is created by malloc() and must be freed by free() by
+ * programmer. All given data if copied, so passed arguments may be released
+ * just after returning from functions.
+ *
+ * \param argp Parameters passed to RPC function.
+ * \param code RPC-function's return code.
+ * \param buf Buffer with data to be passed to client.
+ * \param buf_len Length of data in 'buf'.
+ * \return Filled 'data_rf_res'.
+ */
+data_rf_res* create_data_rf_res(data_rf* argp, int code, void* buf, unsigned long long buf_len)
+{
 	data_rf_res* res = (data_rf_res*)malloc(sizeof(data_rf_res));
 	res->descriptor = argp->descriptor;
 	res->code = code;
@@ -195,24 +194,127 @@ void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *r
 	res->callback.callback_val = (char*)malloc(argp->callback.callback_len);
 	memcpy(res->callback.callback_val, argp->callback.callback_val, argp->callback.callback_len);
 
-	int val = 0;
-	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
-	data->res = (void*)res;
-	data->func = (void*)func;
-	data->client = c;
-	//__release_client_callback(c);
-	pthread_t th;
-	pthread_create(&th, NULL, data_result_th, data);
-	pthread_detach(th);
+	return res;
+}
 
-	//create_rf_res__101(&res, &val, c);
-	//func(&res, &val, c);
-	//__release_client_callback(c);
+/**
+ * \brief Shortcut to free all buffer inside given structure and structure itself.
+ *
+ * \param res Structure to be deallocated with inside buffers.
+ */
+void free_rf_res(data_rf_res* res)
+{
+	if (res->buf.buf_val!=NULL)
+	{
+		free(res->buf.buf_val);
+		res->buf.buf_val = NULL;
+	}
+	if (res->callback.callback_val!=NULL)
+	{
+		free(res->callback.callback_val);
+		res->callback.callback_val = NULL;
+	}
+	if (res->data.data_val!=NULL)
+	{
+		free(res->data.data_val);
+		res->data.data_val = NULL;
+	}
+	free(res);
+}
+
+/**
+ * \brief Main function for thread calling client back with result of one of
+ * MANAGEMENT functions.
+ */
+void* mngm_result_th(void* d)
+{
+	client_thread* data = (client_thread*)d;
+	management_rf_res_func func = (management_rf_res_func)data->func;
+	management_rf_res *res = (management_rf_res*)data->res;
+
+	int val = 0;
+	func(res, &val, data->client);
+
+	__release_client_callback(data->client);
+	free_rf_res(res);
+	free(data);
+	return NULL;
+}
+
+/**
+ * \brief Main function for thread calling client back with result of one of
+ * DATA functions.
+ */
+void* data_result_th(void* d)
+{
+	client_thread* data = (client_thread*)d;
+	data_rf_res_func func = (data_rf_res_func)data->func;
+	data_rf_res *res = (data_rf_res*)data->res;
+
+	int val = 0;
+	func(res, &val, data->client);
+
+	__release_client_callback(data->client);
+	free_rf_res(res);
+	free(data);
+	return NULL;
 }
 
 /**
  *
  */
+void call_client_mngm_result(int code, struct svc_req *rqstp, management_rf* argp, management_rf_res_func func)
+{
+	printf(" * -call mngm: %d : %s : len %d\n", code, argp->name, argp->data.data_len);fflush(NULL);
+	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
+	management_rf_res *res = create_management_rf_res(argp, code);
+
+	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
+	data->res = res;
+	data->func = (void*)func;
+	data->client = c;
+
+	pthread_t th;
+	pthread_create(&th, NULL, mngm_result_th, data);
+	pthread_detach(th);
+}
+
+/**
+ *
+ */
+void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *rqstp, data_rf* argp, data_rf_res_func func)
+{
+	printf(" * -call data: %d : %d : buf len: %d, data len %d\n", code, argp->descriptor, buf_len, argp->data.data_len);fflush(NULL);
+	CLIENT *c = __aquire_client_callback(rqstp, argp->uid);
+	data_rf_res* res = create_data_rf_res(argp, code, buf, buf_len);
+
+	client_thread* data = (client_thread*)malloc(sizeof(client_thread));
+	data->res = (void*)res;
+	data->func = (void*)func;
+	data->client = c;
+
+	pthread_t th;
+	pthread_create(&th, NULL, data_result_th, data);
+	pthread_detach(th);
+}
+
+/**
+ * \brief Initialize server variables.
+ */
+void server_rf_init()
+{
+	sem_init(&overal_sem, 0, 1);
+	sem_init(&fifos_sem, 0, 1);
+	sem_init(&handles_sem, 0, 1);
+	printf("@ Init done @\n");
+}
+
+
+//*****************************************************************************
+//** Functions generated  
+//*****************************************************************************
+
+
 bool_t create_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 {
 	//sem_wait(&overal_sem);
@@ -296,7 +398,6 @@ bool_t open_rf__1_svc(management_rf *argp, int *result, struct svc_req *rqstp)
 	}
 	handles[next_handle] = iter->second;
 	*result = next_handle;
-	// TODO handles w obiekcie
 	next_handle++;
 	sem_post(&handles_sem);
 
@@ -339,7 +440,6 @@ bool_t close_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 
 bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 {
-	printf(" # write: %d, len: %d\n", argp->descriptor, argp->buf.buf_len);
 	sem_wait(&handles_sem);
 	int handle = argp->descriptor;
 	handles_iter iter = handles.find(handle);
@@ -350,20 +450,14 @@ bool_t write_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 		iter->second->data.write(argp->buf.buf_len, argp->buf.buf_val);
 		sem_post(&(iter->second->lock));
 		*result = 0;
-
-		/*
-		std::string name(iter->second->name);
-		printf("write: [%s] : len=%d : code=%d :: MSG: [", name.c_str(), argp->buf.buf_len, *result);
-		for (int i=0; i<argp->buf.buf_len; i++) printf("%1c[%02x]", argp->buf.buf_val[i], argp->buf.buf_val[i]);
-		printf("]\n");
-		*/
+		printf(" # write: %d, len: %d\n", handle, argp->buf.buf_len);
 	}
 	else
 	{
 		sem_post(&handles_sem);
 		*result = -1;
 
-		printf(" # write: [%d] : FAILED :%d\n", handle, *result);
+		printf(" # write: %d, len: %d, FAILED: %d\n", argp->descriptor, argp->buf.buf_len, *result);
 	}
 
 	call_client_data_result(*result, NULL, 0, rqstp, argp, write_rf_res__101);
@@ -378,7 +472,7 @@ bool_t read_rf__1_svc(data_rf *argp, int *result, struct svc_req *rqstp)
 	unsigned long long size = 0;
 	memcpy(&size, argp->buf.buf_val, sizeof(size));
 
-	printf(" # read: %d, len: %d (real len: %d)\n", argp->descriptor, argp->buf.buf_len, size);
+	printf(" # read: %d, len: %d (real len: %llud)\n", argp->descriptor, argp->buf.buf_len, size);
 
 	sem_wait(&handles_sem);
 	handles_iter iter = handles.find(handle);
@@ -498,7 +592,7 @@ bool_t write_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqs
 
 	assert(sizeof(data)==argp->data.data_len);
 	memcpy(&data, argp->data.data_val, sizeof(data));
-	printf(" => write_rf_res__101_svc: %d/%d, len: %d, data: %lld\n", handle, code, argp->buf.buf_len, (char*)data);
+	printf(" => write_rf_res__101_svc: %d/%d, len: %d\n", handle, code, argp->buf.buf_len);
 	//(int handle, int code, void* buf, int len, void* data);
 	(*callback)(handle, code, NULL, 0, data);
 
@@ -524,7 +618,7 @@ bool_t read_rf_res__101_svc(data_rf_res *argp, int *result, struct svc_req *rqst
 
 	assert(sizeof(data)==argp->data.data_len);
 	memcpy(&data, argp->data.data_val, sizeof(data));
-	printf(" => read_rf_res__101_svc: %d/%d, len: %d, data: %lld\n", handle, code, size, (char*)data);
+	printf(" => read_rf_res__101_svc: %d/%d, len: %llud\n", handle, code, size);
 	//(int handle, int code, void* buf, int len, void* data);
 	(*callback)(handle, code, buffer, size, data);
 

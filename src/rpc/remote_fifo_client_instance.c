@@ -147,6 +147,7 @@ rf_client_instance run_rf_client(long long unique_id)
 	inst.unique_id = unique_id;
 	printf(" RPC thread started: %d\n", pthread_create(&inst.client_thread, NULL, client_thread, param));
 	sem_wait(&starting);
+	sem_destroy(&starting);
 	return inst;
 }
 

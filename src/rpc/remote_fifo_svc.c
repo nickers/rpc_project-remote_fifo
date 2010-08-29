@@ -23,7 +23,7 @@ void server_rf_init();
 
 int main (int argc, char **argv)
 {
-	register SVCXPRT *transp;
+//	register SVCXPRT *transp;
 
 	server_rf_init();
 	run_rf_server();
