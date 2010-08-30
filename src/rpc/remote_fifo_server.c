@@ -15,6 +15,8 @@
 #include <assert.h>
 #include "../data_queue.h"
 
+#define SAFE_FREE(p); if(p!=NULL) { free(p); p=NULL; }
+
 /**
  * \brief Information about single stream.
  */
@@ -145,7 +147,7 @@ management_rf_res* create_management_rf_res(management_rf* argp, int code)
  */
 void free_rf_res(management_rf_res* res)
 {
-	if (res->name!=NULL)
+	/*if (res->name!=NULL)
 	{
 		free(res->name);
 		res->name = NULL;
@@ -160,7 +162,11 @@ void free_rf_res(management_rf_res* res)
 		free(res->data.data_val);
 		res->data.data_val = NULL;
 	}
-	free(res);
+	free(res);*/
+	SAFE_FREE(res->name);
+	SAFE_FREE(res->callback.callback_val);
+	SAFE_FREE(res->data.data_val);
+	SAFE_FREE(res);
 }
 
 /**
@@ -204,6 +210,7 @@ data_rf_res* create_data_rf_res(data_rf* argp, int code, void* buf, unsigned lon
  */
 void free_rf_res(data_rf_res* res)
 {
+	/*
 	if (res->buf.buf_val!=NULL)
 	{
 		free(res->buf.buf_val);
@@ -219,7 +226,11 @@ void free_rf_res(data_rf_res* res)
 		free(res->data.data_val);
 		res->data.data_val = NULL;
 	}
-	free(res);
+	free(res);*/
+	SAFE_FREE(res->buf.buf_val);
+	SAFE_FREE(res->callback.callback_val);
+	SAFE_FREE(res->data.data_val);
+	SAFE_FREE(res);
 }
 
 /**
@@ -297,6 +308,106 @@ void call_client_data_result(int code, void* buf, int buf_len, struct svc_req *r
 	pthread_create(&th, NULL, data_result_th, data);
 	pthread_detach(th);
 }
+
+/*******************************************************************************
+ * Client side threads running callback functions.
+ ******************************************************************************/
+
+struct callback_th_params {
+	int handle;
+	int code;
+	void* data;
+	void* buf;
+	unsigned long long buf_len;
+	char* name;
+	void* func;
+};
+typedef callback_th_params callback_th_params;
+
+callback_th_params* create_callback_th_params(data_rf_res* argp)
+{
+	callback_th_params* params = (callback_th_params*)malloc(sizeof(callback_th_params));
+	memset(params, 0, sizeof(*params));
+
+	params->handle= argp->descriptor;
+	params->code = argp->code;
+	memcpy(&params->func, argp->callback.callback_val, argp->callback.callback_len);
+	
+	if (argp->buf.buf_val!=NULL && argp->buf.buf_len>0)
+	{
+		unsigned long long size = 0;
+		char* buffer = NULL;
+		int delta = sizeof(size) + sizeof(buffer);
+		memcpy(&size, argp->buf.buf_val, sizeof(size));
+		memcpy(&buffer, &argp->buf.buf_val[sizeof(size)], sizeof(buffer));
+		memcpy(buffer, &argp->buf.buf_val[delta], size);
+
+		params->buf = buffer;
+		params->buf_len = size;
+	}
+
+	assert(sizeof(params->data)==argp->data.data_len);
+	memcpy(&params->data, argp->data.data_val, sizeof(params->data));
+	
+	return params;
+}
+
+callback_th_params* create_callback_th_params(management_rf_res* argp)
+{
+	callback_th_params* params = (callback_th_params*)malloc(sizeof(callback_th_params));
+	memset(params, 0, sizeof(*params));
+
+	params->name = strdup(argp->name);
+	params->code = argp->code;
+	memcpy(&params->func, argp->callback.callback_val, argp->callback.callback_len);
+
+	assert(sizeof(params->data)==argp->data.data_len);
+	memcpy(&params->data, argp->data.data_val, sizeof(params->data));
+
+	return params;
+}
+
+void free_callback_th_params(callback_th_params* p)
+{
+	/*
+	if (p->buf!=NULL)
+	{
+		free(p->buf);
+		p->buf = NULL;
+	}
+	if (p->name!=NULL)
+	{
+		free(p->name);
+		p->name = NULL;
+	}
+	free(p);*/
+	SAFE_FREE(p->buf); // TODO czy na pewno mogę to usuwać? zawsze  to chyba zwalnia programista?
+	SAFE_FREE(p->name);
+	SAFE_FREE(p);
+}
+
+void* data_callback_th(void* data)
+{
+	callback_th_params* params = (callback_th_params*)data;
+
+	rf_rw_callback callback = (rf_rw_callback)params->func;
+	(callback)(params->handle, params->code, params->buf, params->buf_len, params->data);
+	
+	free_callback_th_params(params);
+	return NULL;
+}
+
+void* management_callback_th(void* data)
+{
+	callback_th_params* params = (callback_th_params*)data;
+
+	rf_man_callback callback = (rf_man_callback)params->func;
+	(callback)(params->code, params->name, params->data);
+
+	free_callback_th_params(params);
+	return NULL;
+}
+
 
 /**
  * \brief Initialize server variables.
@@ -569,14 +680,22 @@ bool_t open_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req
 
 bool_t close_rf_res__101_svc(management_rf_res *argp, int *result, struct svc_req *rqstp)
 {
+	/*
 	rf_man_callback *callback = (rf_man_callback*)argp->callback.callback_val;
 	int code = argp->code;
 	char* name = argp->name;
 	void* data = NULL;
 	assert(sizeof(data)==argp->data.data_len);
 	memcpy(&data, argp->data.data_val, sizeof(data));
-	printf(" => close_rf_res__101_svc: %s / %s\n", name, (char*)data);
-	(*callback)(code, name, data);
+	*/
+	//printf(" => close_rf_res__101_svc: %s\n", name);
+	
+	/////////(*callback)(code, name, data);
+	pthread_t th;
+	callback_th_params* params = create_callback_th_params(argp);
+	printf(" => close_rf_res__101_svc: %s\n", params->name);
+	pthread_create(&th, NULL, management_callback_th, params);
+	pthread_detach(th);
 
 	*result = 0;
 
