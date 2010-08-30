@@ -12,3 +12,4 @@ Po stronie serwera po odebraniu nowego żądania wykonywane są następujące kr
     2.1. Wykonywane jest zlecone zadanie
     2.2. Uruchamiany jest nowy wątek, którego zadaniem jest przesłanie wyników przetwarzania do mini-serwera po stronie klienta.
          Nowy wątek jest konieczny by nieprawidłowo wykonany klient odbierający wyniki nie blokował serwera (ma to miejsce, gdy funkcja klienta rozpocznie dalsze przetwarzanie przed zamknięciem połączenia).
+         
