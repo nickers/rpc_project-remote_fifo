@@ -1,5 +1,9 @@
 #include "rpc/remote_fifo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ============================================================================
  * == callbacks types
  * ============================================================================ */
@@ -14,10 +18,11 @@ typedef void (*rf_man_callback)(int code, char* name, void* data);
  */
 typedef void (*rf_rw_callback)(int handle, int code, void* buf, int len, void* data);
 
+
 /**
  *
  */
-int init_rf(char* host);
+extern int init_rf(char* host);
 
 /**
  * \brief Create new remote fifo.
@@ -35,3 +40,7 @@ extern int close_rf(int handle, rf_man_callback callback, void* data);
 
 extern int  read_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data);
 extern int write_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data);
+
+#ifdef __cplusplus
+}
+#endif
