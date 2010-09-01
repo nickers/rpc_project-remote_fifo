@@ -8,7 +8,9 @@
 -------------------------------------------------------------------------------
 -- Uruchomienie:
 -------------------------------------------------------------------------------
-W katalogu głównym uruchamiany plik './make.sh' który skompiluje serwer i klienta
+W katalogu głównym uruchamiany plik './make.sh' który skompiluje źródła. 
+Wewnątrz ./bin/ pojawią się 3 pliki: serwer, testowa aplikacja kliencka 
+oraz biblioteka.
 
 
 -------------------------------------------------------------------------------
@@ -22,7 +24,7 @@ W katalogu głównym uruchamiany plik './make.sh' który skompiluje serwer i kli
 -- Wykowanie funkcji:
 -------------------------------------------------------------------------------
 Gdy programista uruchamia wybraną funkcję wykonywane są następujące kroki:
- 1. Wypełniana jest struktura utworzona przez rpgen	danymi podanymi jako 
+ 1. Wypełniana jest struktura utworzona przez rpgen danymi podanymi jako 
     parametry funkcji.
  2. Wywoływana jest lokalna funkcja wygenerowana przez rpgen, której zadaniem 
     jest uruchomienie odpowiadającej jej funkcji na serwerze.
