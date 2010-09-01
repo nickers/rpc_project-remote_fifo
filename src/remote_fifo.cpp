@@ -69,7 +69,7 @@ int __call_remote_man_func(char* name, rf_man_callback callback, void* data, cha
 
     args.uid = getpid();
 
-	printf(" # man_call:  '%s' '%s' %lld [%s]\n", name, (char*)data, (long long)callback, (char*)data);fflush(NULL);
+	//DEBUG//printf(" # man_call:  '%s' '%s' %lld [%s]\n", name, (char*)data, (long long)callback, (char*)data);fflush(NULL);
     CLIENT *c = __aquire_client(host);
     int ret_val = func(&args, &result, c);
 	if (ret_val != RPC_SUCCESS)
@@ -99,7 +99,7 @@ int __call_remote_rw_func(int handle, void* buffer, unsigned long long size, rf_
 	args.uid = getpid();
 
 	CLIENT *c = __aquire_client(NULL);
-	printf(" # data_call: '%d' '%s' %lld\n", handle, (char*)data, (long long)callback);fflush(NULL);
+	//DEBUG//printf(" # data_call: '%d' '%s' %lld\n", handle, (char*)data, (long long)callback);fflush(NULL);
 	int ret_val = func(&args, &result, c);
 	if (ret_val != RPC_SUCCESS)
 	{
@@ -122,50 +122,42 @@ int init_rf(char* host)
 int create_rf(char* name, rf_man_callback callback, void* data, char* host)
 {
 
-    __call_remote_man_func(name, callback, data, host, create_rf__1);
-    //callback(0, name, data);
-    return 0;
+    int r = __call_remote_man_func(name, callback, data, host, create_rf__1);
+    return r;
 }
 
 int unlink_rf(char* name, rf_man_callback callback, void* data, char* host)
 {
-    /*int r = */ __call_remote_man_func(name, callback, data, host, unlink_rf__1);
-    //callback(r, name, data);
-    return 0;
+    int r = __call_remote_man_func(name, callback, data, host, unlink_rf__1);
+    return r;
 }
 
 int  open_rf(char* name, rf_man_callback callback,  void* data, char* host)
 {
-    /*int r = */__call_remote_man_func(name, callback, data, host, open_rf__1);
-    //callback(r, name, data);
-    return 0;
+    int r = __call_remote_man_func(name, callback, data, host, open_rf__1);
+    return r;
 }
 
 int close_rf(int handle, rf_man_callback callback, void* data)
 {
-	//char name[] = "/test.fifo";
-    __call_remote_rw_func(handle, NULL, 0, (rf_rw_callback)callback, data, close_rf__1);
-    //callback(0, name, data);
-    return 0;
+    int r = __call_remote_rw_func(handle, NULL, 0, (rf_rw_callback)callback, data, close_rf__1);
+    return r;
 }
 
 int  read_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data)
 {
-// TODO zapakować wskaźnik na "buffer" do tablicy?
 	int all_len = sizeof(size)+sizeof(buffer);
 	char* tmp_buf = new char[all_len];
 	memcpy(tmp_buf, &size, sizeof(size));
 	memcpy(&tmp_buf[sizeof(size)], &buffer, sizeof(buffer));
 
-    /*int code = */__call_remote_rw_func(handle, tmp_buf, all_len, (rf_rw_callback)callback, data, read_rf__1);
+    int r = __call_remote_rw_func(handle, tmp_buf, all_len, (rf_rw_callback)callback, data, read_rf__1);
     delete[] tmp_buf;
-    //callback(handle,  code, buffer, size, data);
-    return 0;
+    return r;
 }
 
 int write_rf(int handle, void* buffer, unsigned long long size, rf_rw_callback callback, void* data)
 {
-	/*int code = */__call_remote_rw_func(handle, buffer, size, (rf_rw_callback)callback, data, write_rf__1);
-    //callback(handle,  code, buffer, size, data);
-    return 0;
+	int r = __call_remote_rw_func(handle, buffer, size, (rf_rw_callback)callback, data, write_rf__1);
+    return r;
 }
